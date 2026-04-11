@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Discount Bids — Live Manifest</title>
+<title>Discount Bids — Live Packing Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -22,46 +22,52 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font-body); background: var(--bg-deep); color: var(--text); min-height: 100vh; position: relative; overflow-x: hidden; }
   body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 70%); -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 70%); pointer-events: none; z-index: 0; }
-  body::after { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 50% 40% at 15% 5%, rgba(59,130,246,0.07) 0%, transparent 60%), radial-gradient(ellipse 40% 35% at 85% 15%, rgba(212,168,71,0.05) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+  body::after { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 50% 40% at 15% 5%, rgba(59,130,246,0.07) 0%, transparent 60%), radial-gradient(ellipse 40% 35% at 85% 15%, rgba(212,168,71,0.05) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 95%, rgba(59,130,246,0.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
 
   .page-wrap { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 36px 28px 60px; }
 
-  .header { margin-bottom: 32px; }
+  .header { margin-bottom: 36px; }
   .header-top { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
-  .logo { width: 46px; height: 46px; background: linear-gradient(135deg, #0a1a3a 0%, #122452 40%, #1a3570 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 24px rgba(59,130,246,0.25); position: relative; }
+  .logo { width: 46px; height: 46px; background: linear-gradient(135deg, #0a1a3a 0%, #122452 40%, #1a3570 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 24px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.08); position: relative; }
   .logo::after { content: ''; position: absolute; inset: -2px; border-radius: 12px; border: 1px solid rgba(59,130,246,0.3); }
   h1 { font-family: var(--font-head); font-size: 24px; font-weight: 700; background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold-pale) 40%, var(--gold) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 2px; text-transform: uppercase; }
   .subtitle { color: var(--text-dim); font-size: 15px; font-weight: 500; padding-left: 62px; }
   .header-line { height: 1px; background: linear-gradient(90deg, var(--gold-dim), rgba(212,168,71,0.3), transparent 80%); margin-top: 18px; }
 
-  .status-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 12px 18px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); }
-  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: pulse 2s ease-in-out infinite; }
+  /* Status bar */
+  .status-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 12px 18px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); flex-wrap: wrap; }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: pulse 2s ease-in-out infinite; }
   .live-dot.loading { background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: none; }
-  .live-dot.empty { background: var(--text-muted); box-shadow: none; animation: none; }
-  .live-dot.error { background: #f87171; box-shadow: 0 0 8px #f87171; animation: none; }
+  .live-dot.empty  { background: var(--text-muted); box-shadow: none; animation: none; }
+  .live-dot.error  { background: #f87171; box-shadow: 0 0 8px #f87171; animation: none; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
   .status-text { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
   .status-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-left: auto; }
   .btn { background: linear-gradient(135deg, var(--blue) 0%, #2563eb 60%, #1d4ed8 100%); color: #fff; border: none; border-radius: var(--radius-sm); padding: 8px 18px; font-size: 12px; font-family: var(--font-head); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.25s; box-shadow: 0 2px 14px rgba(59,130,246,0.3); }
   .btn:hover { box-shadow: 0 4px 24px rgba(59,130,246,0.4); transform: translateY(-1px); }
-  .btn-sm { padding: 6px 14px; font-size: 11px; }
+  .btn-secondary { background: transparent; border: 1px solid var(--border); box-shadow: none; color: var(--text-dim); }
+  .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--text-muted); color: var(--text); box-shadow: none; transform: none; }
 
+  /* Empty state */
   .empty-state { text-align: center; padding: 80px 20px; color: var(--text-dim); }
   .empty-icon { font-size: 52px; margin-bottom: 16px; opacity: 0.5; }
   .empty-title { font-family: var(--font-head); font-size: 18px; color: var(--text); margin-bottom: 8px; }
   .empty-hint { font-size: 14px; line-height: 1.6; }
 
+  /* Manifest header */
   .manifest-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
   .manifest-title { font-family: var(--font-head); font-size: 17px; font-weight: 700; color: var(--gold-bright); letter-spacing: 1.5px; text-transform: uppercase; }
   .manifest-date { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); margin-top: 4px; }
 
+  /* Summary */
   .summary { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
   .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; flex: 1; min-width: 120px; position: relative; overflow: hidden; }
   .summary-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold-dim), var(--gold-bright), var(--gold-dim)); }
-  .summary-num { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: var(--gold-bright); }
-  .summary-label { font-family: var(--font-head); font-size: 11px; color: var(--text-dim); margin-top: 2px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  .summary-num { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: var(--gold-bright); position: relative; z-index: 1; }
+  .summary-label { font-family: var(--font-head); font-size: 11px; color: var(--text-dim); margin-top: 2px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; position: relative; z-index: 1; }
 
-  .shipment { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; display: flex; overflow: hidden; }
+  /* Shipment cards */
+  .shipment { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; transition: all 0.25s; display: flex; overflow: hidden; }
   .shipment:hover { border-color: var(--border-glow); box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
   .shipment-info { flex: 1; padding: 20px 22px; min-width: 0; }
   .shipment-label-panel { width: 300px; min-width: 300px; border-left: 1px solid var(--border); background: var(--bg-mid); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; }
@@ -77,24 +83,30 @@
   .recipient-user { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
   .recipient-address { font-size: 14px; color: var(--text); margin-top: 5px; font-weight: 500; line-height: 1.5; }
 
+  /* Box badges */
   .box-badge { padding: 7px 14px; border-radius: 6px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-align: center; white-space: nowrap; }
-  .box-10x10x10 { background: rgba(34,211,238,0.08); color: #22d3ee; border: 1px solid rgba(34,211,238,0.25); }
-  .box-12x10x8  { background: rgba(52,211,153,0.08); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
-  .box-12x12x12 { background: rgba(168,85,247,0.08); color: #a855f7; border: 1px solid rgba(168,85,247,0.25); }
-  .box-16x12x8  { background: rgba(59,130,246,0.08); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
-  .box-18x12x8  { background: rgba(251,146,60,0.08); color: #fb923c; border: 1px solid rgba(251,146,60,0.25); }
+  .box-large  { background: rgba(59,130,246,0.08); color: var(--blue-bright); border: 1px solid rgba(59,130,246,0.2); }
+  .box-small  { background: rgba(212,168,71,0.06); color: var(--gold-bright); border: 1px solid rgba(212,168,71,0.2); }
+  .box-10x10x10 { background: rgba(34,211,238,0.08);  color: #22d3ee; border: 1px solid rgba(34,211,238,0.25); }
+  .box-12x10x8  { background: rgba(52,211,153,0.08);  color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+  .box-12x12x12 { background: rgba(168,85,247,0.08);  color: #a855f7; border: 1px solid rgba(168,85,247,0.25); }
+  .box-16x12x8  { background: rgba(59,130,246,0.08);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+  .box-18x12x8  { background: rgba(251,146,60,0.08);  color: #fb923c; border: 1px solid rgba(251,146,60,0.25); }
   .box-bubble   { background: rgba(244,114,182,0.08); color: #f472b6; border: 1px solid rgba(244,114,182,0.25); }
-  .box-large    { background: rgba(59,130,246,0.08); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
 
+  /* Items */
   .items-list { margin-top: 12px; border-top: 1px solid var(--border-subtle); padding-top: 10px; }
-  .item-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; margin: 0 -8px; border-radius: 5px; }
+  .item-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; margin: 0 -8px; border-radius: 5px; transition: background 0.15s; }
+  .item-row:hover { background: rgba(59,130,246,0.03); }
   .item-row + .item-row { border-top: 1px solid var(--border-subtle); }
-  .item-num { background: rgba(59,130,246,0.08); color: var(--blue-bright); font-family: var(--font-mono); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; min-width: 38px; text-align: center; }
+  .item-qty  { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--gold-bright); min-width: 36px; text-align: center; }
   .item-name { font-size: 14px; font-weight: 600; flex: 1; color: var(--text-bright); }
+  .item-nums { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); white-space: nowrap; }
 
+  /* Lightbox */
   .lightbox { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); align-items: center; justify-content: center; cursor: pointer; }
   .lightbox.open { display: flex; }
-  .lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; }
+  .lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; box-shadow: 0 0 60px rgba(0,0,0,0.5); }
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -109,8 +121,21 @@
     .status-bar, .btn { display: none !important; }
     h1 { -webkit-text-fill-color: #1a1a2e; }
     .shipment { border: 1px solid #ddd; break-inside: avoid; background: #fff; box-shadow: none !important; }
+    .shipment:hover { transform: none; box-shadow: none; }
+    .shipment-label-panel { background: #f8f8f8; }
     .summary-card { border: 1px solid #ddd; background: #fafafa; }
-    .summary-num, .manifest-title { color: #1a1a2e; -webkit-text-fill-color: #1a1a2e; }
+    .summary-card::before { background: #999; }
+    .summary-num { color: #1a1a2e; -webkit-text-fill-color: #1a1a2e; }
+    .manifest-title { color: #1a1a2e; -webkit-text-fill-color: #1a1a2e; }
+    .box-10x10x10 { background: #cffafe; color: #0e7490; border-color: #67e8f9; }
+    .box-12x10x8  { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+    .box-12x12x12 { background: #f3e8ff; color: #6b21a8; border-color: #c084fc; }
+    .box-16x12x8  { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+    .box-18x12x8  { background: #ffedd5; color: #9a3412; border-color: #fdba74; }
+    .box-bubble   { background: #fce7f3; color: #9d174d; border-color: #f9a8d4; }
+    .item-qty  { color: #111; }
+    .item-nums { color: #666; }
+    .item-row:hover { background: none; }
     .recipient-name, .item-name { color: #111; }
   }
 </style>
@@ -123,16 +148,16 @@
     <div class="logo">⚡</div>
     <h1>Discount Bids</h1>
   </div>
-  <p class="subtitle">Live shipping manifest — refreshes automatically</p>
+  <p class="subtitle">Live packing guide — auto-refreshes every 60 seconds</p>
   <div class="header-line"></div>
 </div>
 
 <div class="status-bar">
   <div class="live-dot loading" id="dot"></div>
-  <span class="status-text" id="statusText">Loading manifest…</span>
+  <span class="status-text" id="statusText">Loading…</span>
   <span class="status-time" id="statusTime"></span>
-  <button class="btn btn-sm" onclick="load()">Refresh</button>
-  <button class="btn btn-sm" onclick="window.print()" style="background: transparent; border: 1px solid var(--border); box-shadow: none; color: var(--text-dim);">Print</button>
+  <button class="btn" onclick="load()">Refresh</button>
+  <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
 </div>
 
 <div id="content"></div>
@@ -145,6 +170,17 @@ function openLightbox(src) {
   document.getElementById('lightbox').classList.add('open');
 }
 
+function groupItems(displayItems) {
+  const groups = {};
+  (displayItems || []).forEach(it => {
+    const key = it.itemName;
+    if (!groups[key]) groups[key] = { itemName: key, auctions: [], qty: 0 };
+    groups[key].auctions.push(it.auctionNum);
+    groups[key].qty++;
+  });
+  return Object.values(groups);
+}
+
 async function load() {
   const dot = document.getElementById('dot');
   const statusText = document.getElementById('statusText');
@@ -152,7 +188,7 @@ async function load() {
   const content = document.getElementById('content');
 
   dot.className = 'live-dot loading';
-  statusText.textContent = 'Loading manifest…';
+  statusText.textContent = 'Loading…';
 
   try {
     const res = await fetch('/manifest');
@@ -160,20 +196,20 @@ async function load() {
 
     if (data.empty || !data.shipments || !data.shipments.length) {
       dot.className = 'live-dot empty';
-      statusText.textContent = 'No manifest published yet — waiting for label maker to submit';
+      statusText.textContent = 'No manifest published yet — waiting for label maker';
       statusTime.textContent = '';
       content.innerHTML = `<div class="empty-state">
         <div class="empty-icon">📦</div>
         <div class="empty-title">Nothing here yet</div>
-        <div class="empty-hint">The label maker hasn't published today's manifest.<br>Check back in a few minutes or hit Refresh.</div>
+        <div class="empty-hint">The label maker hasn't published today's packing guide.<br>Check back in a few minutes or hit Refresh.</div>
       </div>`;
       return;
     }
 
     dot.className = 'live-dot';
-    statusText.textContent = `Live · ${data.count} shipments for ${data.date}`;
     const pub = data.publishedAt ? new Date(data.publishedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
-    statusTime.textContent = pub ? `Published at ${pub}` : '';
+    statusText.textContent = `Live · ${data.count} shipments · ${data.date}`;
+    statusTime.textContent = pub ? `Published ${pub}` : '';
 
     const shipments = data.shipments;
     const hasLabels = shipments.some(s => s.labelImage);
@@ -185,41 +221,49 @@ async function load() {
       if (bk) boxCounts[bk] = (boxCounts[bk] || 0) + 1;
     });
 
-    const sbHtml = Object.entries(boxCounts).sort((a,b) => b[1]-a[1])
-      .map(([s,c]) => `<div class="summary-card"><div class="summary-num">${c}</div><div class="summary-label">${s}</div></div>`).join('');
+    const sbHtml = Object.entries(boxCounts).sort((a, b) => b[1] - a[1])
+      .map(([s, c]) => `<div class="summary-card"><div class="summary-num">${c}</div><div class="summary-label">${s}</div></div>`).join('');
 
-    let html = `<div class="manifest-header">
-      <div>
-        <div class="manifest-title">⚡ Shipping Manifest — ${data.sheetName || data.date}</div>
-        <div class="manifest-date">${shipments.length} shipment${shipments.length !== 1 ? 's' : ''}</div>
+    let html = `
+      <div class="manifest-header">
+        <div>
+          <div class="manifest-title">⚡ Packing Guide — ${data.sheetName || data.date}</div>
+          <div class="manifest-date">${shipments.length} shipment${shipments.length !== 1 ? 's' : ''}${hasLabels ? ' · labels included' : ''}</div>
+        </div>
       </div>
-    </div>
-    <div class="summary">
-      <div class="summary-card"><div class="summary-num">${shipments.length}</div><div class="summary-label">Total Shipments</div></div>
-      ${sbHtml}
-    </div>`;
+      <div class="summary">
+        <div class="summary-card"><div class="summary-num">${shipments.length}</div><div class="summary-label">Total Shipments</div></div>
+        ${sbHtml}
+      </div>`;
 
     shipments.forEach((s, i) => {
       const al = [s.addr1, s.addr2].filter(Boolean).join(', ');
       const cl = `${s.city}, ${s.state} ${s.zip}`;
       const splitBadge = s.splitInfo ? `<div class="split-badge">${s.splitInfo}</div>` : '';
-      const ih = (s.displayItems || []).map(it =>
-        `<div class="item-row"><span class="item-num">#${it.auctionNum}</span><span class="item-name">${it.itemName}</span></div>`
+
+      // Group items: 3× Boom Box Mini  #101, #102, #103
+      const groups = groupItems(s.displayItems);
+      const ih = groups.map(g =>
+        `<div class="item-row">
+          <span class="item-qty">${g.qty}×</span>
+          <span class="item-name">${g.itemName}</span>
+          <span class="item-nums">${g.auctions.map(a => '#' + a).join(', ')}</span>
+        </div>`
       ).join('');
 
-      let labelHtml = '';
-      if (s.labelImage) {
-        labelHtml = `<div class="shipment-label-panel">
-          <img src="${s.labelImage}" alt="Label" onclick="event.stopPropagation(); openLightbox(this.src)">
-        </div>`;
-      }
+      const labelHtml = s.labelImage
+        ? `<div class="shipment-label-panel">
+            <img src="${s.labelImage}" alt="Label" onclick="event.stopPropagation(); openLightbox(this.src)">
+           </div>`
+        : '';
 
-      const noLabelClass = (hasLabels && !s.labelImage) ? '' : (!hasLabels ? ' no-labels' : '');
-      html += `<div class="shipment${noLabelClass}" style="animation:fadeUp .45s ease ${.03*i}s both">
+      const noLabelClass = hasLabels && !s.labelImage ? '' : (!hasLabels ? ' no-labels' : '');
+
+      html += `<div class="shipment${noLabelClass}" style="animation:fadeUp .45s ease ${.03 * i}s both">
         <div class="shipment-info">
           <div class="shipment-header">
             <div>
-              <div class="shipment-num">Shipment ${i+1} / ${shipments.length}</div>
+              <div class="shipment-num">Shipment ${i + 1} / ${shipments.length}</div>
               ${splitBadge}
               <div class="recipient-name">${s.name}</div>
               <div class="recipient-user">@${s.username}</div>
@@ -237,13 +281,12 @@ async function load() {
 
   } catch (err) {
     dot.className = 'live-dot error';
-    statusText.textContent = 'Error loading manifest: ' + err.message;
+    statusText.textContent = 'Error: ' + err.message;
     statusTime.textContent = '';
   }
 }
 
 load();
-// Auto-refresh every 60 seconds
 setInterval(load, 60000);
 </script>
 </body>
