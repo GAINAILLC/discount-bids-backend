@@ -50,5 +50,31 @@ app.delete('/manifest', (req, res) => {
 
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
+// GitHub webhook → auto-redeploy on push to master
+app.post('/github-webhook', async (req, res) => {
+  const event = req.headers['x-github-event'];
+  const branch = req.body?.ref;
+  if (event !== 'push' || !branch?.endsWith('/master')) return res.json({ skipped: true });
+  res.json({ triggered: true });
+  // Call Render API to deploy
+  const https = require('https');
+  const payload = JSON.stringify({ clearCache: 'do_not_clear' });
+  const options = {
+    hostname: 'api.render.com',
+    path: '/v1/services/srv-d7cka0lckfvc73a4cbk0/deploys',
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer rnd_vF2EHJOy6dK7NWt2fI07EwTnRBfA',
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Content-Length': Buffer.byteLength(payload)
+    }
+  };
+  const r = https.request(options);
+  r.write(payload);
+  r.end();
+  console.log('[Auto-deploy] Triggered by GitHub push to master');
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Discount Bids Backend running on port ${PORT}`));
