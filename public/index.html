@@ -116,27 +116,43 @@
   }
 
   @media print {
-    body, body::before, body::after { background: #fff !important; }
+    /* Hide absolutely everything except label images */
+    body, body::before, body::after { background: #fff !important; margin: 0; padding: 0; }
     body::before, body::after { display: none; }
-    .status-bar, .btn { display: none !important; }
-    h1 { -webkit-text-fill-color: #1a1a2e; }
-    .shipment { border: 1px solid #ddd; break-inside: avoid; background: #fff; box-shadow: none !important; }
-    .shipment:hover { transform: none; box-shadow: none; }
-    .shipment-label-panel { background: #f8f8f8; }
-    .summary-card { border: 1px solid #ddd; background: #fafafa; }
-    .summary-card::before { background: #999; }
-    .summary-num { color: #1a1a2e; -webkit-text-fill-color: #1a1a2e; }
-    .manifest-title { color: #1a1a2e; -webkit-text-fill-color: #1a1a2e; }
-    .box-10x10x10 { background: #cffafe; color: #0e7490; border-color: #67e8f9; }
-    .box-12x10x8  { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
-    .box-12x12x12 { background: #f3e8ff; color: #6b21a8; border-color: #c084fc; }
-    .box-16x12x8  { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
-    .box-18x12x8  { background: #ffedd5; color: #9a3412; border-color: #fdba74; }
-    .box-bubble   { background: #fce7f3; color: #9d174d; border-color: #f9a8d4; }
-    .item-qty  { color: #111; }
-    .item-nums { color: #666; }
-    .item-row:hover { background: none; }
-    .recipient-name, .item-name { color: #111; }
+    .page-wrap { padding: 0; margin: 0; max-width: 100%; }
+    .header, .status-bar, .manifest-header, .summary,
+    .shipment-info, .empty-state, .lightbox { display: none !important; }
+
+    /* Each shipment becomes just its label image, one per page */
+    .shipment {
+      display: block !important;
+      border: none !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff !important;
+      page-break-after: always;
+      break-after: page;
+    }
+    /* Shipments with no label: skip entirely */
+    .shipment.no-labels { display: none !important; }
+
+    .shipment-label-panel {
+      width: 100% !important;
+      min-width: 0 !important;
+      border: none !important;
+      background: #fff !important;
+      padding: 0 !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+    .shipment-label-panel img {
+      max-width: 100%;
+      max-height: 100vh;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
   }
 </style>
 </head>
