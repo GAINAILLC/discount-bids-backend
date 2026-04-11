@@ -173,7 +173,7 @@
   <span class="status-text" id="statusText">Loading…</span>
   <span class="status-time" id="statusTime"></span>
   <button class="btn" onclick="load()">Refresh</button>
-  <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+  <button class="btn btn-secondary" id="printBtn" onclick="printLabels()">🖨️ Print Labels</button>
 </div>
 
 <div id="content"></div>
@@ -299,6 +299,21 @@ async function load() {
     dot.className = 'live-dot error';
     statusText.textContent = 'Error: ' + err.message;
     statusTime.textContent = '';
+  }
+}
+
+async function printLabels() {
+  // Check if original PDFs were uploaded
+  const res = await fetch('/manifest/labels-pdf');
+  const data = await res.json();
+  if (data.count > 0) {
+    // Open each original PDF in a new tab — full quality, native browser printing
+    for (let i = 0; i < data.count; i++) {
+      window.open(`/manifest/labels-pdf/${i}`, '_blank');
+    }
+  } else {
+    // No PDFs uploaded — fall back to printing the page
+    window.print();
   }
 }
 

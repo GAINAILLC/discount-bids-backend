@@ -48,6 +48,32 @@ app.delete('/manifest', (req, res) => {
   res.json({ success: true });
 });
 
+// ── PDF label store ───────────────────────────────────────────────────────────
+let pdfStore = []; // array of Buffer (one per uploaded PDF file)
+
+// Upload original PDFs (base64 encoded)
+app.post('/manifest/labels-pdf', (req, res) => {
+  const { pdfs } = req.body;
+  if (!pdfs || !Array.isArray(pdfs)) return res.status(400).json({ error: 'Missing pdfs array' });
+  pdfStore = pdfs.map(b64 => Buffer.from(b64, 'base64'));
+  console.log(`[PDF] Stored ${pdfStore.length} PDF file(s)`);
+  res.json({ success: true, count: pdfStore.length });
+});
+
+// Serve a PDF by index
+app.get('/manifest/labels-pdf/:index', (req, res) => {
+  const idx = parseInt(req.params.index);
+  if (isNaN(idx) || idx < 0 || idx >= pdfStore.length) return res.status(404).json({ error: 'Not found' });
+  res.set('Content-Type', 'application/pdf');
+  res.set('Content-Disposition', `inline; filename="labels-${idx + 1}.pdf"`);
+  res.send(pdfStore[idx]);
+});
+
+// How many PDFs are stored
+app.get('/manifest/labels-pdf', (req, res) => {
+  res.json({ count: pdfStore.length });
+});
+
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
 // GitHub webhook → auto-redeploy on push to master
