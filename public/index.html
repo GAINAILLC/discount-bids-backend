@@ -3,76 +3,257 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Discount Bids — Live Packing Guide</title>
+<title>Discount Bids — Packing Guide</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-deep: #040810; --bg-mid: #080e1c; --bg-card: #0a1428; --bg-card-hover: #0f1f3d;
-    --border: #142040; --border-subtle: #0f1830; --border-glow: #1e3a6e;
-    --gold: #d4a847; --gold-bright: #f0c95c; --gold-pale: #f5dfa0; --gold-dim: #8a6520;
-    --blue: #3b82f6; --blue-bright: #60a5fa; --blue-dim: #1a3566;
-    --cyan: #22d3ee; --text: #b0c4de; --text-dim: #4a6484; --text-bright: #e4edf8;
-    --text-muted: #2a3e5c; --radius: 14px; --radius-sm: 8px;
+    --bg-deep: #040810;
+    --bg-mid: #080e1c;
+    --bg-card: #0a1428;
+    --bg-card-hover: #0f1f3d;
+    --border: #142040;
+    --border-subtle: #0f1830;
+    --border-glow: #1e3a6e;
+    --gold: #d4a847;
+    --gold-bright: #f0c95c;
+    --gold-pale: #f5dfa0;
+    --gold-dim: #8a6520;
+    --blue: #3b82f6;
+    --blue-bright: #60a5fa;
+    --blue-dim: #1a3566;
+    --cyan: #22d3ee;
+    --text: #b0c4de;
+    --text-dim: #4a6484;
+    --text-bright: #e4edf8;
+    --text-muted: #2a3e5c;
+    --radius: 14px;
+    --radius-sm: 8px;
     --font-head: 'Chakra Petch', 'Segoe UI', system-ui, sans-serif;
     --font-body: 'Rajdhani', 'Segoe UI', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font-body); background: var(--bg-deep); color: var(--text); min-height: 100vh; position: relative; overflow-x: hidden; }
-  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 70%); -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 70%); pointer-events: none; z-index: 0; }
-  body::after { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 50% 40% at 15% 5%, rgba(59,130,246,0.07) 0%, transparent 60%), radial-gradient(ellipse 40% 35% at 85% 15%, rgba(212,168,71,0.05) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 95%, rgba(59,130,246,0.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
 
-  .page-wrap { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 36px 28px 60px; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-deep);
+    color: var(--text);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 50% 40% at 15% 5%, rgba(59,130,246,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 35% at 85% 15%, rgba(212,168,71,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 95%, rgba(59,130,246,0.04) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
 
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 36px 28px 60px;
+  }
+
+  /* ─── Header ─── */
   .header { margin-bottom: 36px; }
   .header-top { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
-  .logo { width: 46px; height: 46px; background: linear-gradient(135deg, #0a1a3a 0%, #122452 40%, #1a3570 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 0 24px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.08); position: relative; }
+  .logo {
+    width: 46px; height: 46px;
+    background: linear-gradient(135deg, #0a1a3a 0%, #122452 40%, #1a3570 100%);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 24px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.08);
+    position: relative;
+  }
   .logo::after { content: ''; position: absolute; inset: -2px; border-radius: 12px; border: 1px solid rgba(59,130,246,0.3); }
-  h1 { font-family: var(--font-head); font-size: 24px; font-weight: 700; background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold-pale) 40%, var(--gold) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 2px; text-transform: uppercase; }
+  h1 {
+    font-family: var(--font-head); font-size: 24px; font-weight: 700;
+    background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold-pale) 40%, var(--gold) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
   .subtitle { color: var(--text-dim); font-size: 15px; font-weight: 500; padding-left: 62px; }
   .header-line { height: 1px; background: linear-gradient(90deg, var(--gold-dim), rgba(212,168,71,0.3), transparent 80%); margin-top: 18px; }
 
-  /* Status bar */
-  .status-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 12px 18px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); flex-wrap: wrap; }
-  .live-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: pulse 2s ease-in-out infinite; }
-  .live-dot.loading { background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: none; }
-  .live-dot.empty  { background: var(--text-muted); box-shadow: none; animation: none; }
-  .live-dot.error  { background: #f87171; box-shadow: 0 0 8px #f87171; animation: none; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .status-text { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
-  .status-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-left: auto; }
-  .btn { background: linear-gradient(135deg, var(--blue) 0%, #2563eb 60%, #1d4ed8 100%); color: #fff; border: none; border-radius: var(--radius-sm); padding: 8px 18px; font-size: 12px; font-family: var(--font-head); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.25s; box-shadow: 0 2px 14px rgba(59,130,246,0.3); }
+  /* ─── Upload Area ─── */
+  .upload-area { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  @media (max-width: 750px) { .upload-area { grid-template-columns: 1fr; } }
+  @media (min-width: 751px) and (max-width: 950px) { .upload-area { grid-template-columns: 1fr 1fr; } }
+
+  .upload-box {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 22px 16px; text-align: center; cursor: pointer;
+    transition: all 0.3s ease; position: relative; overflow: hidden;
+  }
+  .upload-box::after {
+    content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blue), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .upload-box:hover { border-color: var(--blue-dim); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(59,130,246,0.06); }
+  .upload-box:hover::after { opacity: 1; }
+  .upload-box.done { border-color: rgba(212,168,71,0.4); background: rgba(212,168,71,0.03); }
+  .upload-box.done::after { opacity: 1; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .upload-box input { display: none; }
+  .upload-box label { cursor: pointer; display: block; position: relative; z-index: 1; }
+  .upload-icon { font-size: 28px; margin-bottom: 10px; }
+  .upload-title { font-family: var(--font-head); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-bright); margin-bottom: 4px; }
+  .upload-hint { font-size: 12px; color: var(--text-dim); font-weight: 500; }
+  .upload-filename { font-family: var(--font-mono); font-size: 11px; color: var(--gold); margin-top: 8px; font-weight: 500; }
+  .upload-optional { font-family: var(--font-head); font-size: 9px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; }
+
+  /* ─── Controls ─── */
+  .controls {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;
+    padding: 14px 18px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  .date-label { font-family: var(--font-head); font-size: 12px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+  .date-select {
+    background: var(--bg-mid); border: 1px solid var(--border); color: var(--text-bright);
+    padding: 9px 14px; border-radius: var(--radius-sm); font-size: 14px;
+    font-family: var(--font-body); font-weight: 600; cursor: pointer;
+  }
+  .date-select:focus { outline: none; border-color: var(--gold-dim); }
+
+  .btn {
+    background: linear-gradient(135deg, var(--blue) 0%, #2563eb 60%, #1d4ed8 100%);
+    color: #fff; border: none; border-radius: var(--radius-sm); padding: 10px 24px;
+    font-size: 13px; font-family: var(--font-head); font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    transition: all 0.25s; box-shadow: 0 2px 14px rgba(59,130,246,0.3);
+  }
   .btn:hover { box-shadow: 0 4px 24px rgba(59,130,246,0.4); transform: translateY(-1px); }
+  .btn:disabled { background: var(--bg-mid); color: var(--text-muted); cursor: not-allowed; box-shadow: none; border: 1px solid var(--border); }
   .btn-secondary { background: transparent; border: 1px solid var(--border); box-shadow: none; color: var(--text-dim); }
   .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--text-muted); color: var(--text); box-shadow: none; transform: none; }
+  .controls-right { margin-left: auto; display: flex; gap: 8px; }
 
-  /* Empty state */
-  .empty-state { text-align: center; padding: 80px 20px; color: var(--text-dim); }
-  .empty-icon { font-size: 52px; margin-bottom: 16px; opacity: 0.5; }
-  .empty-title { font-family: var(--font-head); font-size: 18px; color: var(--text); margin-bottom: 8px; }
-  .empty-hint { font-size: 14px; line-height: 1.6; }
+  .label-status { font-family: var(--font-mono); font-size: 11px; color: var(--cyan); }
 
-  /* Manifest header */
+  /* ─── Manifest ─── */
+  #manifest { display: none; }
   .manifest-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
   .manifest-title { font-family: var(--font-head); font-size: 17px; font-weight: 700; color: var(--gold-bright); letter-spacing: 1.5px; text-transform: uppercase; }
   .manifest-date { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); margin-top: 4px; }
 
-  /* Summary */
+  /* ─── Summary ─── */
   .summary { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-  .summary-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; flex: 1; min-width: 120px; position: relative; overflow: hidden; }
+  .summary-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 20px; flex: 1; min-width: 120px; position: relative; overflow: hidden;
+  }
   .summary-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--gold-dim), var(--gold-bright), var(--gold-dim)); }
   .summary-num { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: var(--gold-bright); position: relative; z-index: 1; }
   .summary-label { font-family: var(--font-head); font-size: 11px; color: var(--text-dim); margin-top: 2px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; position: relative; z-index: 1; }
 
-  /* Shipment cards */
-  .shipment { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; transition: all 0.25s; display: flex; overflow: hidden; }
+  /* ─── Shipment Cards ─── */
+  .shipment {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 14px; transition: all 0.25s; display: flex; overflow: hidden;
+  }
   .shipment:hover { border-color: var(--border-glow); box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+
   .shipment-info { flex: 1; padding: 20px 22px; min-width: 0; }
-  .shipment-label-panel { width: 300px; min-width: 300px; border-left: 1px solid var(--border); background: var(--bg-mid); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; }
-  .shipment-label-panel img { max-width: 100%; max-height: 400px; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.2s; }
+  .shipment-label-panel {
+    width: 300px; min-width: 300px;
+    border-left: 1px solid var(--border);
+    background: var(--bg-mid);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 14px;
+  }
+  .shipment-label-panel img {
+    max-width: 100%; max-height: 400px;
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    cursor: pointer; transition: transform 0.2s;
+  }
   .shipment-label-panel img:hover { transform: scale(1.02); }
+  .no-label-msg { font-family: var(--font-head); font-size: 12px; color: #f87171; letter-spacing: 0.5px; text-align: center; padding: 12px 20px; margin-bottom: 8px; background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.15); border-radius: var(--radius-sm); }
+
+  /* Unmatched labels section */
+  .unmatched-section { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--border); }
+  .unmatched-header { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: #f87171; margin-bottom: 6px; }
+  .unmatched-hint { font-size: 13px; color: var(--text-dim); margin-bottom: 18px; line-height: 1.5; }
+  .unmatched-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .unmatched-card {
+    background: var(--bg-card); border: 1px solid rgba(239,68,68,0.15); border-radius: var(--radius);
+    overflow: hidden; transition: border-color 0.2s;
+  }
+  .unmatched-card:hover { border-color: rgba(239,68,68,0.35); }
+  .unmatched-card img { width: 100%; cursor: pointer; display: block; border-bottom: 1px solid var(--border); }
+  .unmatched-info { padding: 12px 14px; }
+  .unmatched-page { font-family: var(--font-head); font-size: 12px; font-weight: 700; color: #f87171; margin-bottom: 4px; }
+  .unmatched-text { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); word-break: break-all; line-height: 1.4; max-height: 60px; overflow: hidden; }
+  .unmatched-reason { font-size: 12px; line-height: 1.5; margin-bottom: 6px; }
+  .unmatched-reason strong { color: var(--text-bright); }
+  .reason-warning { color: #fb923c; }
+  .reason-muted { color: var(--text-dim); }
+  .reason-info { color: var(--cyan); }
+
+  /* Skipped red items section */
+  .skipped-section { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--border); }
+  .skipped-header { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: #f87171; margin-bottom: 6px; }
+  .skipped-hint { font-size: 13px; color: var(--text-dim); margin-bottom: 18px; }
+  .skipped-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .skipped-user-card { background: var(--bg-card); border: 1px solid rgba(239,68,68,0.15); border-radius: var(--radius); padding: 16px 18px; }
+  .skipped-user-card:hover { border-color: rgba(239,68,68,0.3); }
+  .skipped-user { font-family: var(--font-mono); font-size: 13px; color: #f87171; font-weight: 600; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle); }
+  .skipped-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; }
+  .skipped-item .item-num { background: rgba(239,68,68,0.08); color: #f87171; }
+  .skipped-item .item-name { color: var(--text-dim); }
+
+  /* Tracking export section */
+  .tracking-section { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--border); }
+  .tracking-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
+  .tracking-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--gold-bright); margin-bottom: 4px; }
+  .tracking-subtitle { font-size: 13px; color: var(--text-dim); }
+  .tracking-buttons { display: flex; gap: 8px; }
+  .tracking-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+  .tracking-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tracking-table thead { background: var(--bg-card); }
+  .tracking-table th { font-family: var(--font-head); font-size: 11px; font-weight: 700; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  .tracking-table td { padding: 8px 14px; border-bottom: 1px solid var(--border-subtle); }
+  .tracking-row-ok { background: var(--bg-card); }
+  .tracking-row-ok:hover { background: var(--bg-card-hover); }
+  .tracking-row-empty { background: var(--bg-card); }
+  .tracking-row-red { background: rgba(239,68,68,0.04); }
+  .tracking-row-red td { color: var(--text-muted); }
+  .tracking-cell { font-family: var(--font-mono); font-size: 11px; color: var(--cyan); letter-spacing: 0.3px; user-select: all; }
+  .tracking-skip { color: #f87171; font-family: var(--font-head); font-size: 10px; letter-spacing: 1px; }
+  .tracking-missing { color: var(--text-muted); }
+
+  .label-picker {
+    width: 100%;
+    background: var(--bg-card); border: 1px solid var(--border); color: var(--text-bright);
+    padding: 8px 12px; border-radius: var(--radius-sm);
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    cursor: pointer; margin-bottom: 10px;
+  }
+  .label-picker:focus { outline: none; border-color: var(--gold-dim); }
+
   .shipment.no-labels { display: block; }
   .shipment.no-labels .shipment-label-panel { display: none; }
 
@@ -83,32 +264,44 @@
   .recipient-user { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
   .recipient-address { font-size: 14px; color: var(--text); margin-top: 5px; font-weight: 500; line-height: 1.5; }
 
-  /* Box badges */
-  .box-badge { padding: 7px 14px; border-radius: 6px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-align: center; white-space: nowrap; }
-  .box-large  { background: rgba(59,130,246,0.08); color: var(--blue-bright); border: 1px solid rgba(59,130,246,0.2); }
-  .box-small  { background: rgba(212,168,71,0.06); color: var(--gold-bright); border: 1px solid rgba(212,168,71,0.2); }
-  .box-10x10x10 { background: rgba(34,211,238,0.08);  color: #22d3ee; border: 1px solid rgba(34,211,238,0.25); }
-  .box-12x10x8  { background: rgba(52,211,153,0.08);  color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
-  .box-12x12x12 { background: rgba(168,85,247,0.08);  color: #a855f7; border: 1px solid rgba(168,85,247,0.25); }
-  .box-16x12x8  { background: rgba(59,130,246,0.08);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
-  .box-18x12x8  { background: rgba(251,146,60,0.08);  color: #fb923c; border: 1px solid rgba(251,146,60,0.25); }
+  .box-badge {
+    padding: 7px 14px; border-radius: 6px; font-family: var(--font-mono);
+    font-size: 11px; font-weight: 600; text-align: center; white-space: nowrap;
+  }
+  .box-large { background: rgba(59,130,246,0.08); color: var(--blue-bright); border: 1px solid rgba(59,130,246,0.2); }
+  .box-small { background: rgba(212,168,71,0.06); color: var(--gold-bright); border: 1px solid rgba(212,168,71,0.2); }
+  .box-poly-large, .box-poly-small { background: rgba(34,211,238,0.06); color: var(--cyan); border: 1px solid rgba(34,211,238,0.2); }
+  /* Per-size color coding */
+  .box-10x10x10 { background: rgba(34,211,238,0.08); color: #22d3ee; border: 1px solid rgba(34,211,238,0.25); }
+  .box-12x10x8  { background: rgba(52,211,153,0.08); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+  .box-12x12x12 { background: rgba(168,85,247,0.08); color: #a855f7; border: 1px solid rgba(168,85,247,0.25); }
+  .box-16x12x8  { background: rgba(59,130,246,0.08); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+  .box-18x12x8  { background: rgba(251,146,60,0.08); color: #fb923c; border: 1px solid rgba(251,146,60,0.25); }
   .box-bubble   { background: rgba(244,114,182,0.08); color: #f472b6; border: 1px solid rgba(244,114,182,0.25); }
 
-  /* Items */
   .items-list { margin-top: 12px; border-top: 1px solid var(--border-subtle); padding-top: 10px; }
   .item-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; margin: 0 -8px; border-radius: 5px; transition: background 0.15s; }
   .item-row:hover { background: rgba(59,130,246,0.03); }
   .item-row + .item-row { border-top: 1px solid var(--border-subtle); }
-  .item-qty  { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--gold-bright); min-width: 36px; text-align: center; }
-  .item-name { font-size: 14px; font-weight: 600; flex: 1; color: var(--text-bright); }
+  .item-num { background: rgba(59,130,246,0.08); color: var(--blue-bright); font-family: var(--font-mono); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; min-width: 38px; text-align: center; }
+  .item-qty { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--gold-bright); min-width: 36px; text-align: center; }
   .item-nums { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); white-space: nowrap; }
+  .item-name { font-size: 14px; font-weight: 600; flex: 1; color: var(--text-bright); }
+  .item-tag { font-family: var(--font-head); font-size: 10px; padding: 3px 9px; border-radius: 4px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .tag-drone { background: rgba(59,130,246,0.08); color: var(--blue-bright); }
+  .tag-earphone { background: rgba(212,168,71,0.08); color: var(--gold); }
+  .tag-hard { background: rgba(34,211,238,0.06); color: var(--cyan); }
 
-  /* Lightbox */
+  .error { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); color: #f87171; padding: 14px 18px; border-radius: var(--radius-sm); margin-bottom: 14px; font-size: 14px; font-weight: 600; }
+
   .lightbox { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); align-items: center; justify-content: center; cursor: pointer; }
   .lightbox.open { display: flex; }
   .lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; box-shadow: 0 0 60px rgba(0,0,0,0.5); }
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .upload-box { animation: fadeUp 0.5s ease both; }
+  .upload-box:nth-child(2) { animation-delay: 0.06s; }
+  .upload-box:nth-child(3) { animation-delay: 0.12s; }
 
   @media (max-width: 900px) {
     .shipment { flex-direction: column; }
@@ -116,43 +309,32 @@
   }
 
   @media print {
-    /* Hide absolutely everything except label images */
-    body, body::before, body::after { background: #fff !important; margin: 0; padding: 0; }
+    body, body::before, body::after { background: #fff !important; }
     body::before, body::after { display: none; }
-    .page-wrap { padding: 0; margin: 0; max-width: 100%; }
-    .header, .status-bar, .manifest-header, .summary,
-    .shipment-info, .empty-state, .lightbox { display: none !important; }
-
-    /* Each shipment becomes just its label image, one per page */
-    .shipment {
-      display: block !important;
-      border: none !important;
-      box-shadow: none !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: #fff !important;
-      page-break-after: always;
-      break-after: page;
-    }
-    /* Shipments with no label: skip entirely */
-    .shipment.no-labels { display: none !important; }
-
-    .shipment-label-panel {
-      width: 100% !important;
-      min-width: 0 !important;
-      border: none !important;
-      background: #fff !important;
-      padding: 0 !important;
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-    }
-    .shipment-label-panel img {
-      max-width: 100%;
-      max-height: 100vh;
-      box-shadow: none !important;
-      border-radius: 0 !important;
-    }
+    .page-wrap { max-width: 100%; padding: 12px; }
+    .upload-area, .controls, .lightbox, .label-picker, .tracking-buttons { display: none !important; }
+    h1 { -webkit-text-fill-color: #1a1a2e; }
+    .shipment { border: 1px solid #ddd; break-inside: avoid; background: #fff; box-shadow: none !important; }
+    .shipment:hover { transform: none; box-shadow: none; }
+    .shipment-label-panel { background: #f8f8f8; }
+    .summary-card { border: 1px solid #ddd; background: #fafafa; }
+    .summary-card::before { background: #999; }
+    .summary-num { color: #1a1a2e; -webkit-text-fill-color: #1a1a2e; }
+    .manifest-title { color: #1a1a2e; -webkit-text-fill-color: #1a1a2e; }
+    .box-large { background: #dbeafe; color: #1e40af; border-color: #93c5fd; box-shadow: none; }
+    .box-small { background: #fef3c7; color: #92400e; border-color: #fcd34d; box-shadow: none; }
+    .box-poly-small, .box-poly-large { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; box-shadow: none; }
+    .box-10x10x10 { background: #cffafe; color: #0e7490; border-color: #67e8f9; box-shadow: none; }
+    .box-12x10x8  { background: #d1fae5; color: #065f46; border-color: #6ee7b7; box-shadow: none; }
+    .box-12x12x12 { background: #f3e8ff; color: #6b21a8; border-color: #c084fc; box-shadow: none; }
+    .box-16x12x8  { background: #dbeafe; color: #1e40af; border-color: #93c5fd; box-shadow: none; }
+    .box-18x12x8  { background: #ffedd5; color: #9a3412; border-color: #fdba74; box-shadow: none; }
+    .box-bubble   { background: #fce7f3; color: #9d174d; border-color: #f9a8d4; box-shadow: none; }
+    .item-num { background: #f0f0f0; color: #333; }
+    .item-qty { color: #111; }
+    .item-nums { color: #666; }
+    .item-row:hover { background: none; }
+    .recipient-name, .item-name { color: #111; }
   }
 </style>
 </head>
@@ -164,161 +346,1103 @@
     <div class="logo">⚡</div>
     <h1>Discount Bids</h1>
   </div>
-  <p class="subtitle">Live packing guide — auto-refreshes every 60 seconds</p>
+  <p class="subtitle">Upload today's TikTok orders, winners file, and shipping labels to generate your packing guide.</p>
   <div class="header-line"></div>
 </div>
 
-<div class="status-bar">
-  <div class="live-dot loading" id="dot"></div>
-  <span class="status-text" id="statusText">Loading…</span>
-  <span class="status-time" id="statusTime"></span>
-  <button class="btn" onclick="load()">Refresh</button>
-  <button class="btn btn-secondary" id="printBtn" onclick="printLabels()">🖨️ Print Labels</button>
+<div class="upload-area">
+  <div class="upload-box" id="csvBox" ondragover="dragOver(event,'csvBox')" ondragleave="dragLeave('csvBox')" ondrop="dropFile(event,'csv')">
+    <label for="csvInput">
+      <div class="upload-icon">📋</div>
+      <div class="upload-title">TikTok Orders</div>
+      <div class="upload-hint">CSV "To Ship" export</div>
+      <div class="upload-filename" id="csvName">Awaiting file…</div>
+    </label>
+    <input type="file" id="csvInput" accept=".csv" onchange="handleFile(this,'csv')">
+  </div>
+  <div class="upload-box" id="xlsxBox" ondragover="dragOver(event,'xlsxBox')" ondragleave="dragLeave('xlsxBox')" ondrop="dropFile(event,'xlsx')">
+    <label for="xlsxInput">
+      <div class="upload-icon">🏆</div>
+      <div class="upload-title">Winners File</div>
+      <div class="upload-hint">DISCOUNT BIDS WINNERS.xlsx</div>
+      <div class="upload-filename" id="xlsxName">Awaiting file…</div>
+    </label>
+    <input type="file" id="xlsxInput" accept=".xlsx,.xls" onchange="handleFile(this,'xlsx')">
+  </div>
+  <div class="upload-box" id="pdfBox" ondragover="dragOver(event,'pdfBox')" ondragleave="dragLeave('pdfBox')" ondrop="dropFile(event,'pdf')">
+    <label for="pdfInput">
+      <div class="upload-icon">🏷️</div>
+      <div class="upload-title">Shipping Labels</div>
+      <div class="upload-hint">One or more label PDFs</div>
+      <div class="upload-filename" id="pdfName">Awaiting file…</div>
+      <div class="upload-optional">Optional · Multiple Files OK</div>
+    </label>
+    <input type="file" id="pdfInput" accept=".pdf" multiple onchange="handlePdfFiles(this)">
+  </div>
 </div>
 
-<div id="content"></div>
+<div class="controls">
+  <span class="date-label">Sheet</span>
+  <select id="dateSelect" class="date-select"></select>
+  <button class="btn" id="generateBtn" onclick="generate()" disabled>Generate Packing Guide</button>
+  <span class="label-status" id="labelStatus"></span>
+  <div class="controls-right">
+    <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+    <button class="btn btn-secondary" onclick="startOver()">🔄 Start Over</button>
+    <button class="btn btn-secondary" id="jumpTrackingBtn" style="display:none" onclick="document.getElementById('tracking-section').scrollIntoView({behavior:'smooth'})">📋 Tracking</button>
+  </div>
+</div>
+
+<div id="errorBox"></div>
+<div id="manifest"></div>
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')"><img id="lightboxImg" src="" alt="Label"></div>
 
 </div>
+
 <script>
-function openLightbox(src) {
-  document.getElementById('lightboxImg').src = src;
-  document.getElementById('lightbox').classList.add('open');
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let csvData = null, xlsxWorkbook = null;
+let pdfPages = []; // [{text, imageUrl, pageNum}]
+
+const PRODUCT_DB = [
+  { key: "humidifier", dims: [12,9.5,7], isPoly: false },
+  { key: "s80 smart folding drone", dims: [10,10,4.5], isPoly: false },
+  { key: "vr shinecon headset", dims: [7,5,3.75], isPoly: false },
+  { key: "lego airplane", dims: [10.5,6,1.5], isPoly: false },
+  { key: "cunsion kitchen set", dims: [14.5,8.5,1], isPoly: false },
+  { key: "vaccum storage bags", dims: [11,9,3.5], isPoly: false },
+  { key: "wireless speaker zqs1202", dims: [6.5,3.5,3.5], isPoly: false },
+  { key: "t900 ultra", dims: [7.8,2.5,1], isPoly: false },
+  { key: "bling beauty curling wand", dims: [14.5,5,2], isPoly: false },
+  { key: "cordless jump rope", dims: [7,5,2], isPoly: false },
+  { key: "zuzee portable inflation pump", dims: [8,5.5,2.5], isPoly: false },
+  { key: "s7 gamebox", dims: [7.5,4.5,2.5], isPoly: false },
+  { key: "hair dryer", dims: [14,6,5.5], isPoly: false },
+  { key: "light facial beauty instrument", dims: [9,8,5], isPoly: false },
+  { key: "travel compression bags", dims: [10,8,2], isPoly: false },
+  { key: "lcd writing tablet", dims: [11,7,0.5], isPoly: false },
+  { key: "dinosaur rail car", dims: [16,7,4.5], isPoly: false },
+  { key: "violent fan", dims: [10.5,9.5,4.5], isPoly: false },
+  { key: "dino bicycle", dims: [24,13.5,6], isPoly: false },
+  { key: "yomi drone avoid obstacles", dims: [10,10,5], isPoly: false },
+  { key: "yomi experience", dims: [11.5,9,5.5], isPoly: false },
+  { key: "boom box 4 mini", dims: [9.5,6,4], isPoly: false },
+  { key: "kitchen knife", dims: [10.5,4,1], isPoly: false },
+  { key: "traffic recorder", dims: [6,4.5,2.75], isPoly: false },
+  { key: "facial gun massage", dims: [15,10.5,3], isPoly: false },
+  { key: "handheld gaming console", dims: [8.2,7.2,1.5], isPoly: false },
+  { key: "automatic pet feeder", dims: [13.5,8,8], isPoly: false },
+  { key: "g5 gamebox", dims: [5.25,4.25,1.5], isPoly: false },
+  { key: "rotary shaver", dims: [7.25,3.5,2.5], isPoly: false },
+  { key: "body trimmer", dims: [7,3,2.5], isPoly: false },
+  { key: "mini electric chainsaw", dims: [10.5,8,4.5], isPoly: false },
+  { key: "amphibious stunt car", dims: [9.5,6.5,3.5], isPoly: false },
+  { key: "obd2", dims: [9,6.5,1.5], isPoly: false },
+  { key: "ms 309", dims: [9,6.5,1.5], isPoly: false },
+  { key: "smart glasses", dims: [7,3,2], isPoly: true },
+  { key: "spider man", dims: [11,8,1.5], isPoly: false },
+  { key: "eti toy jumbo gears", dims: [16,11,6], isPoly: false },
+  { key: "wireless earphone", dims: [4,4,1.5], isPoly: true },
+  { key: "karaoke", dims: [5.5,5,3], isPoly: false },
+  { key: "karyoke", dims: [5.5,5,3], isPoly: false },
+  { key: "black earphones", dims: [3,3,1.5], isPoly: true },
+  { key: "zt325 ai glasses", dims: [12,8,2], isPoly: false },
+  { key: "ows20", dims: [6,3.5,1.5], isPoly: true },
+  { key: "ows inteli", dims: [4,4,1.5], isPoly: true },
+  { key: "x911 wireless speaker", dims: [4.5,4.5,3.5], isPoly: false },
+  { key: "gl06", dims: [4.5,3.5,4], isPoly: true },
+  { key: "learning machine", dims: [7.5,6,1], isPoly: false },
+  { key: "smart ring", dims: [4.5,3.25,1.15], isPoly: true },
+  { key: "jring", dims: [4.5,3.25,1.15], isPoly: true },
+  { key: "yomi fighter jet drone", dims: [12,9,4.5], isPoly: false },
+  { key: "juice blender", dims: [9,3.5,3.5], isPoly: false },
+  { key: "lcd tablet", dims: [11,7,0.5], isPoly: false },
+  { key: "lcd writing tablet", dims: [11,7,0.5], isPoly: false },
+];
+
+const STANDARD_BOXES = [[10,10,10],[12,10,8],[12,12,12],[16,12,8],[18,12,8]];
+const POLY_MAILERS = [{ dims: [8.5,12], label: '8.5×12', cls: 'box-bubble' }];
+
+function findProduct(name) {
+  const n = name.toLowerCase();
+  return PRODUCT_DB.find(p => n.startsWith(p.key)) ||
+         PRODUCT_DB.find(p => n.includes(p.key) || p.key.includes(n.split(' ').slice(0,3).join(' ')));
+}
+function fitsInBox(itemDims, box) {
+  const item = [...itemDims].sort((a,b) => b-a), b = [...box].sort((a,c) => c-a);
+  return item[0] <= b[0] && item[1] <= b[1] && item[2] <= b[2];
+}
+function boxClass(box) {
+  const key = `${box[0]}x${box[1]}x${box[2]}`;
+  const map = { '10x10x10':'box-10x10x10', '12x10x8':'box-12x10x8', '12x12x12':'box-12x12x12', '16x12x8':'box-16x12x8', '18x12x8':'box-18x12x8' };
+  return map[key] || 'box-large';
+}
+function getBoxRecommendation(itemNames) {
+  const resolved = itemNames.map(n => findProduct(n));
+  const hardItems = resolved.filter(p => p && !p.isPoly);
+  const polyItems = resolved.filter(p => p && p.isPoly);
+  const unknownCount = resolved.filter(p => !p).length;
+  const allPoly = hardItems.length === 0 && unknownCount === 0 && polyItems.length > 0;
+  if (allPoly) {
+    const maxL = Math.max(...polyItems.map(p => Math.max(...p.dims)));
+    const maxW = Math.max(...polyItems.map(p => Math.max(...p.dims.filter(d => d !== Math.max(...p.dims)))));
+    const totalThickness = polyItems.reduce((sum, p) => sum + Math.min(...p.dims), 0);
+    if (totalThickness > 1.5) {
+      const needed = [maxL+1, maxW+1, totalThickness+1];
+      const sb = STANDARD_BOXES.slice().sort((a,b) => a[0]*a[1]*a[2] - b[0]*b[1]*b[2]);
+      const fb = sb.find(box => fitsInBox(needed, box)) || sb[sb.length-1];
+      return { label: `⚡ ${fb[0]}×${fb[1]}×${fb[2]} Box`, cls: boxClass(fb) };
+    }
+    const fit = POLY_MAILERS.find(pm => pm.dims[0] >= maxW+1 && pm.dims[1] >= maxL+1);
+    if (fit) return { label: `⚡ Bubble Mailer ${fit.label}`, cls: fit.cls };
+  }
+  const allItems = [...hardItems, ...polyItems];
+  if (allItems.length === 0) return { label: '⚡ 10×10×10 Box', cls: 'box-10x10x10' };
+  allItems.sort((a,b) => b.dims.reduce((x,y)=>x*y,1) - a.dims.reduce((x,y)=>x*y,1));
+  const biggestItem = allItems[0].dims;
+  const neededVolume = allItems.reduce((s,p) => s + p.dims.reduce((a,b)=>a*b,1), 0) / 0.6;
+  const sorted = STANDARD_BOXES.slice().sort((a,b) => a[0]*a[1]*a[2] - b[0]*b[1]*b[2]);
+  const best = sorted.find(box => fitsInBox(biggestItem, box) && box[0]*box[1]*box[2] >= neededVolume);
+  if (best) return { label: `⚡ ${best[0]}×${best[1]}×${best[2]} Box`, cls: boxClass(best) };
+  const largest = sorted[sorted.length-1];
+  return { label: `⚡ ${largest[0]}×${largest[1]}×${largest[2]} Box ⚠️ Verify fit`, cls: boxClass(largest) };
 }
 
-function groupItems(displayItems) {
-  const groups = {};
-  (displayItems || []).forEach(it => {
-    const key = it.itemName;
-    if (!groups[key]) groups[key] = { itemName: key, auctions: [], qty: 0 };
-    groups[key].auctions.push(it.auctionNum);
-    groups[key].qty++;
-  });
-  return Object.values(groups);
-}
+// ── PDF Label Processing with OCR ──
+async function processMultiplePdfs(bufferList) {
+  pdfPages = [];
+  const statusEl = document.getElementById('labelStatus');
+  statusEl.textContent = 'Processing labels…';
 
-async function load() {
-  const dot = document.getElementById('dot');
-  const statusText = document.getElementById('statusText');
-  const statusTime = document.getElementById('statusTime');
-  const content = document.getElementById('content');
+  // Phase 1: Render all pages (low-res thumbnails + try native text)
+  let totalChars = 0;
+  let globalPage = 0;
+  const allPdfRefs = [];
 
-  dot.className = 'live-dot loading';
-  statusText.textContent = 'Loading…';
+  for (let fi = 0; fi < bufferList.length; fi++) {
+    let pdf;
+    try {
+      pdf = await pdfjsLib.getDocument({ data: bufferList[fi].buffer }).promise;
+    } catch (err) {
+      statusEl.textContent = `⚠️ Could not read ${bufferList[fi].name}`;
+      continue;
+    }
+    allPdfRefs.push({ pdf });
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      globalPage++;
+      statusEl.textContent = `Rendering ${globalPage}…`;
+      try {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const rawText = textContent.items.map(item => item.str).join(' ');
+        const nativeText = rawText.replace(/[^a-z0-9\s]/gi, ' ').replace(/\s+/g, ' ').toLowerCase().trim();
+        totalChars += nativeText.length;
+
+        // Small thumbnail for display
+        const vp = page.getViewport({ scale: 1.0 });
+        const canvas = document.createElement('canvas');
+        canvas.width = vp.width; canvas.height = vp.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+
+        pdfPages.push({ text: nativeText, imageUrl: canvas.toDataURL('image/jpeg', 0.7), pageNum: globalPage, _pdfIdx: fi, _localPage: i });
+      } catch (err) {
+        pdfPages.push({ text: '', imageUrl: '', pageNum: globalPage, _pdfIdx: fi, _localPage: i });
+      }
+    }
+  }
+
+  const totalPages = pdfPages.length;
+  const needsOcr = pdfPages.filter(p => p.text.length < 10);
+
+  if (needsOcr.length === 0) {
+    statusEl.textContent = `✓ ${totalPages} labels ready`;
+    return;
+  }
+
+  // Phase 2: Parallel OCR
+  if (typeof Tesseract === 'undefined') {
+    statusEl.textContent = `✓ ${totalPages - needsOcr.length} labels ready · ${needsOcr.length} need OCR — download & open in Chrome`;
+    return;
+  }
+
+  const WORKER_COUNT = Math.min(4, needsOcr.length);
+  statusEl.textContent = `Starting ${WORKER_COUNT} OCR workers…`;
 
   try {
-    const res = await fetch('/manifest');
-    const data = await res.json();
+    // Create worker pool
+    const workers = [];
+    for (let w = 0; w < WORKER_COUNT; w++) {
+      workers.push(await Tesseract.createWorker('eng'));
+    }
 
-    if (data.empty || !data.shipments || !data.shipments.length) {
-      dot.className = 'live-dot empty';
-      statusText.textContent = 'No manifest published yet — waiting for label maker';
-      statusTime.textContent = '';
-      content.innerHTML = `<div class="empty-state">
-        <div class="empty-icon">📦</div>
-        <div class="empty-title">Nothing here yet</div>
-        <div class="empty-hint">The label maker hasn't published today's packing guide.<br>Check back in a few minutes or hit Refresh.</div>
+    // ── PASS 1: Quick parallel scan ──
+    let completed = 0;
+    const renderAndOcr = async (p, workerIdx) => {
+      const i = pdfPages.indexOf(p);
+      try {
+        const ref = allPdfRefs[p._pdfIdx];
+        const page = await ref.pdf.getPage(p._localPage);
+        const ocrVp = page.getViewport({ scale: 2.0 });
+        const c = document.createElement('canvas');
+        c.width = ocrVp.width; c.height = ocrVp.height;
+        await page.render({ canvasContext: c.getContext('2d'), viewport: ocrVp }).promise;
+
+        const r = await workers[workerIdx].recognize(c);
+        pdfPages[i].text = r.data.text.replace(/[^a-z0-9\s]/gi, ' ').replace(/\s+/g, ' ').toLowerCase().trim();
+        pdfPages[i]._ocrCanvas = c;
+      } catch (e) {}
+      completed++;
+      statusEl.textContent = `OCR: ${completed}/${needsOcr.length} labels scanned…`;
+    };
+
+    // Process in parallel batches
+    for (let batch = 0; batch < needsOcr.length; batch += WORKER_COUNT) {
+      const chunk = needsOcr.slice(batch, batch + WORKER_COUNT);
+      await Promise.all(chunk.map((p, idx) => renderAndOcr(p, idx)));
+    }
+
+    // ── PASS 2: Retry failures (inverted + middle crop) ──
+    const stillFailed = needsOcr.filter(p => p.text.length < 15);
+    if (stillFailed.length > 0) {
+      statusEl.textContent = `Retrying ${stillFailed.length} hard labels…`;
+      let retryDone = 0;
+
+      const retryOcr = async (p, workerIdx) => {
+        const i = pdfPages.indexOf(p);
+        try {
+          let c = p._ocrCanvas;
+          if (!c) {
+            const ref = allPdfRefs[p._pdfIdx];
+            const page = await ref.pdf.getPage(p._localPage);
+            const vp = page.getViewport({ scale: 3.0 });
+            c = document.createElement('canvas');
+            c.width = vp.width; c.height = vp.height;
+            await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+          }
+          const W = c.width, H = c.height;
+          let allText = p.text || '';
+
+          // Inverted full page
+          const inv = document.createElement('canvas');
+          inv.width = W; inv.height = H;
+          const ctx = inv.getContext('2d');
+          ctx.drawImage(c, 0, 0);
+          const d = ctx.getImageData(0, 0, W, H);
+          for (let j = 0; j < d.data.length; j += 4) { d.data[j]=255-d.data[j]; d.data[j+1]=255-d.data[j+1]; d.data[j+2]=255-d.data[j+2]; }
+          ctx.putImageData(d, 0, 0);
+          const r2 = await workers[workerIdx].recognize(inv);
+          allText += ' ' + r2.data.text;
+
+          // Middle 50% crop
+          const mH = Math.floor(H*0.5), mY = Math.floor(H*0.25);
+          const mid = document.createElement('canvas');
+          mid.width = W; mid.height = mH;
+          mid.getContext('2d').drawImage(c, 0, mY, W, mH, 0, 0, W, mH);
+          const r3 = await workers[workerIdx].recognize(mid);
+          allText += ' ' + r3.data.text;
+
+          pdfPages[i].text = allText.replace(/[^a-z0-9\s]/gi, ' ').replace(/\s+/g, ' ').toLowerCase().trim();
+        } catch (e) {}
+        retryDone++;
+        statusEl.textContent = `Retry: ${retryDone}/${stillFailed.length}…`;
+      };
+
+      for (let batch = 0; batch < stillFailed.length; batch += WORKER_COUNT) {
+        const chunk = stillFailed.slice(batch, batch + WORKER_COUNT);
+        await Promise.all(chunk.map((p, idx) => retryOcr(p, idx)));
+      }
+    }
+
+    // Cleanup
+    pdfPages.forEach(p => delete p._ocrCanvas);
+    for (const w of workers) await w.terminate();
+
+    const finalRead = pdfPages.filter(p => p.text.length >= 10).length;
+    const unreadable = totalPages - finalRead;
+    statusEl.textContent = `✓ ${finalRead} labels ready` + (unreadable > 0 ? ` · ${unreadable} unreadable` : '');
+  } catch (err) {
+    statusEl.textContent = `✓ ${totalPages} pages · ⚠️ OCR failed: ${err.message}`;
+  }
+}
+
+function norm(str) {
+  return (str || '').replace(/[^a-z0-9\s]/gi, ' ').replace(/\s+/g, ' ').toLowerCase().trim();
+}
+
+// Levenshtein distance for fuzzy OCR typo tolerance
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+// Check if word exists in word list as whole word (exact, or 1 typo for 4+ char words)
+function wordMatch(word, wordList) {
+  if (word.length < 2) return false;
+  if (wordList.includes(word)) return true;
+  if (word.length >= 4) return wordList.some(w => w.length >= 3 && Math.abs(w.length - word.length) <= 1 && levenshtein(word, w) <= 1);
+  return false;
+}
+
+// Score how well a PDF page matches a shipment
+function scoreMatch(page, shipment) {
+  const words = page.text.split(/\s+/).filter(w => w.length >= 2);
+  let score = 0;
+
+  const fullName = norm(shipment.name);
+  const nameParts = fullName.split(' ').filter(p => p.length > 1);
+  const partsFound = nameParts.filter(p => wordMatch(p, words));
+
+  if (partsFound.length === nameParts.length && nameParts.length >= 2) {
+    score += 25; // all name parts matched as whole words
+  } else if (partsFound.length >= 2) {
+    score += partsFound.length * 6;
+  } else if (partsFound.length === 1 && partsFound[0].length >= 5) {
+    score += 5;
+  }
+
+  const zip = norm(shipment.zip);
+  if (zip.length >= 5 && words.some(w => w === zip || w.startsWith(zip))) score += 12;
+
+  const addr = norm(shipment.addr1);
+  if (addr) {
+    const houseNum = addr.match(/^\d+/);
+    if (houseNum && houseNum[0].length >= 3 && words.includes(houseNum[0])) score += 4;
+    const streetWords = addr.replace(/^\d+\s*/, '').split(' ').filter(w => w.length >= 4);
+    score += streetWords.filter(w => wordMatch(w, words)).length * 3;
+  }
+
+  const city = norm(shipment.city);
+  if (city.length >= 4 && wordMatch(city, words)) score += 5;
+
+  const state = norm(shipment.state);
+  if (state.length === 2 && words.includes(state)) score += 1;
+
+  return score;
+}
+
+// Manual label picker — called when user changes dropdown
+function onLabelPick(selectEl, shipmentIdx) {
+  const pageNum = parseInt(selectEl.value);
+  const imgEl = document.getElementById('label-img-' + shipmentIdx);
+  if (!pageNum || !imgEl) { if(imgEl) imgEl.style.display = 'none'; return; }
+  const page = pdfPages.find(p => p.pageNum === pageNum);
+  if (page) { imgEl.src = page.imageUrl; imgEl.style.display = 'block'; }
+  else { imgEl.style.display = 'none'; }
+}
+
+// ── File Handling ──
+function handleFile(input, type) { const f = input.files[0]; if (f) loadFile(f, type); }
+
+// Handle multiple PDF files
+async function handlePdfFiles(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const names = files.map(f => f.name).join(', ');
+  document.getElementById('pdfName').textContent = `✓ ${files.length} file${files.length > 1 ? 's' : ''}: ${names}`;
+  document.getElementById('pdfBox').classList.add('done');
+
+  // Read all files as array buffers
+  const buffers = [];
+  for (const file of files) {
+    const buf = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = e => res(e.target.result);
+      r.onerror = rej;
+      r.readAsArrayBuffer(file);
+    });
+    buffers.push({ buffer: buf, name: file.name });
+  }
+  await processMultiplePdfs(buffers);
+}
+
+function loadFile(file, type) {
+  const reader = new FileReader();
+  if (type === 'csv') {
+    reader.onload = e => { csvData = e.target.result; document.getElementById('csvName').textContent = '✓ ' + file.name; document.getElementById('csvBox').classList.add('done'); checkReady(); };
+    reader.readAsText(file);
+  } else if (type === 'xlsx') {
+    reader.onload = e => { xlsxWorkbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellStyles: true }); document.getElementById('xlsxName').textContent = '✓ ' + file.name; document.getElementById('xlsxBox').classList.add('done'); populateDateSelect(); checkReady(); };
+    reader.readAsArrayBuffer(file);
+  }
+}
+function populateDateSelect() {
+  const sel = document.getElementById('dateSelect'); sel.innerHTML = '';
+  const today = new Date();
+  const mn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const ts = `${mn[today.getMonth()]} ${today.getDate()}`;
+  xlsxWorkbook.SheetNames.forEach(name => {
+    if (/^[A-Za-z]+ \d+$/.test(name)) { const o = document.createElement('option'); o.value = name; o.textContent = name; if (name === ts) o.selected = true; sel.appendChild(o); }
+  });
+}
+function checkReady() { document.getElementById('generateBtn').disabled = !(csvData && xlsxWorkbook); }
+function dragOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('dragover'); }
+function dragLeave(id) { document.getElementById(id).classList.remove('dragover'); }
+function dropFile(e, type) {
+  e.preventDefault();
+  const boxId = type === 'csv' ? 'csvBox' : type === 'xlsx' ? 'xlsxBox' : 'pdfBox';
+  document.getElementById(boxId).classList.remove('dragover');
+  if (type === 'pdf') {
+    // Handle multiple PDF drop
+    const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.pdf'));
+    if (files.length) {
+      // Fake an input element with files for handlePdfFiles
+      handlePdfFiles({ files });
+    }
+  } else {
+    const f = e.dataTransfer.files[0]; if (f) loadFile(f, type);
+  }
+}
+function showError(msg) { document.getElementById('errorBox').innerHTML = `<div class="error">⚠️ ${msg}</div>`; }
+function clearError() { document.getElementById('errorBox').innerHTML = ''; }
+function openLightbox(src) { document.getElementById('lightboxImg').src = src; document.getElementById('lightbox').classList.add('open'); }
+
+function startOver() {
+  csvData = null; xlsxWorkbook = null; pdfPages = [];
+  ['csvName','xlsxName','pdfName'].forEach(id => document.getElementById(id).textContent = 'Awaiting file…');
+  ['csvBox','xlsxBox','pdfBox'].forEach(id => document.getElementById(id).classList.remove('done'));
+  ['csvInput','xlsxInput','pdfInput'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('dateSelect').innerHTML = '';
+  document.getElementById('generateBtn').disabled = true;
+  document.getElementById('labelStatus').textContent = '';
+  document.getElementById('manifest').style.display = 'none';
+  document.getElementById('manifest').innerHTML = '';
+  document.getElementById('jumpTrackingBtn').style.display = 'none';
+  clearError();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function generate() {
+  clearError();
+  try {
+  const sheetName = document.getElementById('dateSelect').value;
+  if (!sheetName) { showError('Please select a date sheet.'); return; }
+  const ws = xlsxWorkbook.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+  // Helper: check if a cell has a red-ish background fill
+  function isCellRed(sheet, row, col) {
+    const addr = XLSX.utils.encode_cell({ r: row, c: col });
+    const cell = sheet[addr];
+    if (!cell || !cell.s) return false;
+    const s = cell.s;
+    // Check fill color
+    const fill = s.fill || s.patternFill || {};
+    const fg = fill.fgColor || s.fgColor || {};
+    const bg = fill.bgColor || s.bgColor || {};
+    // Check rgb hex values for red-ish colors
+    for (const c of [fg, bg]) {
+      if (!c) continue;
+      const rgb = (c.rgb || c.hex || '').toUpperCase();
+      if (!rgb || rgb.length < 6) continue;
+      const r = parseInt(rgb.substring(0, 2), 16) || parseInt(rgb.substring(2, 4), 16);
+      const g = parseInt(rgb.substring(2, 4), 16) || parseInt(rgb.substring(4, 6), 16);
+      const b = parseInt(rgb.substring(4, 6), 16) || 0;
+      // Red = high R, low G, low B
+      if (r > 180 && g < 100 && b < 100) return true;
+    }
+    // Also check theme/indexed colors — look for common red indices
+    if (s.fill && s.fill.patternType === 'solid') {
+      const fc = s.fill.fgColor || {};
+      if (fc.theme !== undefined || fc.indexed !== undefined) {
+        // Can't reliably decode theme colors, but check raw RGB if available
+        if (fc.rgb) {
+          const rgb = fc.rgb.toUpperCase();
+          const r = parseInt(rgb.substring(0, 2), 16);
+          const g = parseInt(rgb.substring(2, 4), 16);
+          const b = parseInt(rgb.substring(4, 6), 16);
+          if (r > 180 && g < 100 && b < 100) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  let skippedRed = 0;
+  const skippedItems = [];
+  const sheetRows = []; // ALL rows in order for tracking export
+  const userItemMap = {};
+  const bundlesByUser = {}; // username → [{itemName, fromAuction}]
+
+  // Find NOTES column index
+  const headerRow = rows[0] || [];
+  let notesColIdx = -1;
+  for (let c = 0; c < headerRow.length; c++) {
+    if (String(headerRow[c]).trim().toUpperCase() === 'NOTES') { notesColIdx = c; break; }
+  }
+
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i], an = String(r[1]||'').trim(), iN = String(r[2]||'').trim(), wu = String(r[3]||'').trim().toLowerCase();
+    if (!wu || !iN || !an) continue;
+    const isRed = isCellRed(ws, i, 3);
+
+    // Read notes
+    const notes = notesColIdx >= 0 ? String(r[notesColIdx]||'').trim() : '';
+
+    // Check for CANCELLED in notes
+    if (notes.toUpperCase() === 'CANCELLED' || isRed) {
+      skippedRed++;
+      skippedItems.push({ username: wu, auctionNum: an, itemName: iN, reason: notes.toUpperCase() === 'CANCELLED' ? 'Cancelled' : 'Red cell' });
+      sheetRows.push({ rowIdx: i, auctionNum: an, itemName: iN, username: wu, isRed: true });
+      continue;
+    }
+
+    // Check for bundle in notes — format: "21 LCD TABLET(BUNDLE)" or just "LCD TABLET(BUNDLE)"
+    if (notes && /bundle/i.test(notes)) {
+      // Strip leading price number
+      const bundleItem = notes.replace(/^\d+\s*/, '').trim();
+      if (bundleItem) {
+        if (!bundlesByUser[wu]) bundlesByUser[wu] = [];
+        bundlesByUser[wu].push({ itemName: bundleItem, fromAuction: an });
+      }
+    }
+
+    sheetRows.push({ rowIdx: i, auctionNum: an, itemName: iN, username: wu, isRed: false });
+    if (!userItemMap[wu]) userItemMap[wu] = [];
+    userItemMap[wu].push({ auctionNum: an, itemName: iN });
+  }
+
+  // Add bundle items to user's item list
+  Object.entries(bundlesByUser).forEach(([wu, bundles]) => {
+    if (!userItemMap[wu]) return;
+    bundles.forEach(b => {
+      // Check if this bundle item is already added (avoid duplicates)
+      const alreadyAdded = userItemMap[wu].some(it => it.itemName === b.itemName && it.auctionNum === b.fromAuction + '-B');
+      if (!alreadyAdded) {
+        userItemMap[wu].push({ auctionNum: b.fromAuction + '-B', itemName: b.itemName });
+      }
+    });
+  });
+  if (!Object.keys(userItemMap).length) { showError(`No winner data found in "${sheetName}".`); return; }
+
+  const parsed = Papa.parse(csvData, { header: true, skipEmptyLines: true, trimHeaders: true });
+  const addressMap = {};
+  const csvOrder = [];
+
+  // Find column names (varies by export: TikTok, Pirate Ship, etc.)
+  const firstRow = parsed.data[0] || {};
+  const colKeys = Object.keys(firstRow);
+  const trackingCol = colKeys.find(k => /^tracking/i.test(k.trim()))
+    || colKeys.find(k => /tracking/i.test(k))
+    || colKeys.find(k => /shipment.*id/i.test(k) || /label.*id/i.test(k) || /waybill/i.test(k))
+    || '';
+
+  // Find product/item column for item-level tracking matching
+  const productCol = colKeys.find(k => /^product.*name/i.test(k.trim()))
+    || colKeys.find(k => /^sku/i.test(k.trim()))
+    || colKeys.find(k => /^variation/i.test(k.trim()))
+    || colKeys.find(k => /^item/i.test(k.trim()))
+    || colKeys.find(k => /product/i.test(k))
+    || '';
+
+  const orderIdCol = colKeys.find(k => /^order.*id/i.test(k.trim()) || /^package.*id/i.test(k.trim())) || '';
+
+  // Store per-item tracking: [{username, tracking, product, orderId}]
+  const csvTrackingRows = [];
+  const csvTrackingByUser = {}; // username → [tracking, ...]
+
+  parsed.data.forEach(row => {
+    const u = (row['Buyer Username']||'').trim().toLowerCase();
+    if (!u) return;
+    const tracking = (row[trackingCol]||'').trim();
+    const product = productCol ? (row[productCol]||'').trim().toLowerCase() : '';
+    const orderId = orderIdCol ? (row[orderIdCol]||'').trim() : '';
+
+    if (tracking) {
+      csvTrackingRows.push({ username: u, tracking, product, orderId });
+      if (!csvTrackingByUser[u]) csvTrackingByUser[u] = [];
+      if (!csvTrackingByUser[u].includes(tracking)) csvTrackingByUser[u].push(tracking);
+    }
+
+    if (addressMap[u]) return;
+    addressMap[u] = { username: u, name: (row['Recipient']||'').trim(), phone: (row['Phone #']||'').trim(),
+      addr1: (row['Address Line 1']||'').trim(), addr2: (row['Address Line 2']||'').trim(),
+      city: (row['City']||'').trim(), state: (row['State']||'').trim(), zip: String(row['Zipcode']||'').trim() };
+    csvOrder.push(u);
+  });
+
+  const recipients = {};
+  Object.entries(userItemMap).forEach(([u, items]) => { const a = addressMap[u]; if (a) recipients[u] = { ...a, items }; });
+  const shipments = Object.values(recipients);
+  if (!shipments.length) { showError('No matching shipments found.'); return; }
+
+  // Build CSV-ordered shipment list (for page-order fallback)
+  const csvOrderedShipments = csvOrder.filter(u => recipients[u]).map(u => recipients[u]);
+
+  // Sort display alphabetically
+  shipments.sort((a,b) => a.name.localeCompare(b.name));
+
+  const hasLabels = pdfPages.length > 0;
+  const boxCounts = {};
+  const today = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  // ── LABEL MATCHING ──
+  // labelsByUser: username → [page, page, ...]
+  const labelsByUser = {};
+
+  if (hasLabels) {
+    // PASS 1: Text-based scoring for pages with OCR text
+    const pageToUser = {}; // pageNum → username (for proximity pass)
+    pdfPages.forEach(page => {
+      if (!page.text || page.text.length < 3) return;
+      let bestUser = null, bestScore = 0;
+      shipments.forEach(s => {
+        const sc = scoreMatch(page, s);
+        if (sc > bestScore) { bestScore = sc; bestUser = s.username; }
+      });
+      if (bestUser && bestScore >= 12) {
+        if (!labelsByUser[bestUser]) labelsByUser[bestUser] = [];
+        labelsByUser[bestUser].push(page);
+        pageToUser[page.pageNum] = bestUser;
+      }
+    });
+
+    // PASS 2: Proximity matching — multiple passes with expanding radius
+    // for pages that failed OCR, assign to same person as nearest matched page
+    for (let pass = 0; pass < 5; pass++) {
+      let assigned = 0;
+      pdfPages.forEach(page => {
+        if (pageToUser[page.pageNum]) return; // already matched
+        // Search radius expands each pass: ±1, ±2, ±3, ±4, ±5
+        for (let dist = 1; dist <= pass + 1; dist++) {
+          const neighbors = [page.pageNum - dist, page.pageNum + dist];
+          for (const n of neighbors) {
+            if (pageToUser[n]) {
+              const user = pageToUser[n];
+              if (!labelsByUser[user]) labelsByUser[user] = [];
+              labelsByUser[user].push(page);
+              pageToUser[page.pageNum] = user;
+              assigned++;
+              return; // break out of forEach callback
+            }
+          }
+        }
+      });
+      if (assigned === 0) break; // no progress, stop
+    }
+
+    // If text matching got ZERO results, fall back to CSV page-order (1 label per person)
+    if (Object.keys(labelsByUser).length === 0 && csvOrderedShipments.length > 0) {
+      for (let idx = 0; idx < csvOrderedShipments.length && idx < pdfPages.length; idx++) {
+        const u = csvOrderedShipments[idx].username;
+        if (!labelsByUser[u]) labelsByUser[u] = [];
+        labelsByUser[u].push(pdfPages[idx]);
+      }
+    }
+  }
+
+  // ── SMART ITEM SPLITTING ──
+  // Distributes items across N labels intelligently based on item size
+  function smartSplit(items, numLabels) {
+    if (numLabels <= 1) return [items];
+
+    // Get product info for each item
+    const enriched = items.map(it => {
+      const prod = findProduct(it.itemName);
+      const vol = prod ? prod.dims.reduce((a,b) => a*b, 1) : 200; // default medium volume
+      const isPoly = prod ? prod.isPoly : false;
+      return { ...it, prod, vol, isPoly };
+    });
+
+    // Separate poly-eligible items from hard-box items
+    const polyItems = enriched.filter(it => it.isPoly);
+    const hardItems = enriched.filter(it => !it.isPoly);
+
+    // Initialize bins (one per label)
+    const bins = Array.from({ length: numLabels }, () => []);
+
+    // Strategy: if poly items exist and would fit in a bubble mailer, group them in one bin
+    let polyBinUsed = false;
+    if (polyItems.length > 0) {
+      const totalPolyThickness = polyItems.reduce((s, it) => s + (it.prod ? Math.min(...it.prod.dims) : 1), 0);
+      if (totalPolyThickness <= 1.5) {
+        // They all fit in a bubble mailer — put them in the last bin
+        bins[numLabels - 1] = polyItems;
+        polyBinUsed = true;
+      } else {
+        // Too thick for mailer, treat as hard items
+        hardItems.push(...polyItems);
+      }
+    }
+
+    // Distribute hard items using greedy bin-packing
+    // Sort by volume descending (place biggest items first)
+    hardItems.sort((a, b) => b.vol - a.vol);
+
+    const availableBins = polyBinUsed
+      ? bins.slice(0, numLabels - 1)  // leave last bin for poly items
+      : bins;
+
+    hardItems.forEach(item => {
+      // Find the bin with the smallest total volume so far
+      let minVol = Infinity, minIdx = 0;
+      availableBins.forEach((bin, idx) => {
+        const binVol = bin.reduce((s, it) => s + it.vol, 0);
+        if (binVol < minVol) { minVol = binVol; minIdx = idx; }
+      });
+      availableBins[minIdx].push(item);
+    });
+
+    // If any poly items weren't assigned and the poly bin is empty, redistribute
+    if (!polyBinUsed && polyItems.length > 0) {
+      // polyItems were pushed into hardItems, already distributed
+    }
+
+    // Return just the original item data (strip enrichment), skip empty bins
+    return bins.map(bin => bin.map(it => ({ auctionNum: it.auctionNum, itemName: it.itemName })));
+  }
+
+  // ── BUILD DISPLAY ENTRIES ──
+  const displayEntries = [];
+
+  shipments.forEach(s => {
+    const labels = labelsByUser[s.username] || [];
+
+    if (labels.length <= 1) {
+      displayEntries.push({
+        ...s,
+        displayItems: s.items,
+        label: labels[0] || null,
+        splitInfo: null
+      });
+    } else {
+      // Multiple labels: smart split items across labels
+      labels.sort((a, b) => a.pageNum - b.pageNum);
+      const splitBins = smartSplit(s.items, labels.length);
+
+      labels.forEach((lbl, idx) => {
+        const chunk = splitBins[idx] || [];
+        displayEntries.push({
+          ...s,
+          displayItems: chunk,
+          label: lbl,
+          splitInfo: chunk.length > 0 ? `Package ${idx + 1} of ${labels.length} · ${chunk.length} item${chunk.length !== 1 ? 's' : ''}` : `Package ${idx + 1} of ${labels.length} · Empty`
+        });
+      });
+    }
+  });
+
+  // Sort by label page number (entries with labels first in PDF order, then unmatched at end)
+  displayEntries.sort((a, b) => {
+    const pa = a.label ? a.label.pageNum : 999999;
+    const pb = b.label ? b.label.pageNum : 999999;
+    if (pa !== pb) return pa - pb;
+    return a.name.localeCompare(b.name);
+  });
+
+  // Count matched labels
+  const allUsedPages = new Set();
+  displayEntries.forEach(e => { if (e.label) allUsedPages.add(e.label.pageNum); });
+  const matchedCount = allUsedPages.size;
+
+  // Store globally for publish
+  window._displayEntries = displayEntries;
+  window._sheetName = sheetName;
+
+  let html = `<div class="manifest-header"><div><div class="manifest-title">⚡ Packing Guide — ${sheetName}</div><div class="manifest-date">${today} · ${displayEntries.length} shipment${displayEntries.length!==1?'s':''}${skippedRed > 0 ? ` · ${skippedRed} red item${skippedRed!==1?'s':''} skipped` : ''}${hasLabels ? ` · ${matchedCount} label${matchedCount!==1?'s':''} matched` : ''}</div></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;"><button id="publishBtn" class="btn" onclick="publishToWeb()" style="background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);box-shadow:0 2px 14px rgba(22,163,74,0.3);">🌐 Publish to Web</button><a id="publishLink" href="https://discount-bids-backend.onrender.com/view" target="_blank" style="display:none;font-family:var(--font-mono);font-size:12px;color:var(--cyan);text-decoration:none;border:1px solid rgba(34,211,238,0.3);padding:6px 12px;border-radius:var(--radius-sm);">→ View Live</a></div></div>`;
+
+  let sHtml = '';
+  displayEntries.forEach((s, i) => {
+    const box = getBoxRecommendation(s.displayItems.map(it => it.itemName));
+    const bk = box.label.replace('⚡ ','').replace(' ⚠️ Verify fit','').trim();
+    boxCounts[bk] = (boxCounts[bk]||0)+1;
+    const al = [s.addr1, s.addr2].filter(Boolean).join(', '), cl = `${s.city}, ${s.state} ${s.zip}`;
+
+    // Group items by name and count quantities
+    const itemGroups = {};
+    s.displayItems.forEach(it => {
+      const key = it.itemName;
+      if (!itemGroups[key]) itemGroups[key] = { itemName: key, auctions: [], qty: 0 };
+      itemGroups[key].auctions.push(it.auctionNum);
+      itemGroups[key].qty++;
+    });
+    const ih = Object.values(itemGroups).map(g => {
+      return `<div class="item-row"><span class="item-qty">${g.qty}×</span><span class="item-name">${g.itemName}</span><span class="item-nums">${g.auctions.map(a => '#'+a).join(', ')}</span></div>`;
+    }).join('');
+
+    // Split badge
+    const splitBadge = s.splitInfo ? `<div class="split-badge">${s.splitInfo}</div>` : '';
+
+    // Build label panel
+    let labelHtml = '';
+    if (hasLabels) {
+      if (s.label) {
+        labelHtml = `<div class="shipment-label-panel">
+          <img id="label-img-${i}" src="${s.label.imageUrl}" alt="Label p${s.label.pageNum}" title="Page ${s.label.pageNum} — click to enlarge" onclick="event.stopPropagation(); openLightbox(this.src)">
+        </div>`;
+      } else {
+        const opts = pdfPages.map(p => `<option value="${p.pageNum}">Page ${p.pageNum}</option>`).join('');
+        labelHtml = `<div class="shipment-label-panel">
+          <div class="no-label-msg">⚠️ No label match found</div>
+          <select class="label-picker" onchange="onLabelPick(this, ${i})">
+            <option value="">Manually select…</option>
+            ${opts}
+          </select>
+          <img id="label-img-${i}" style="display:none" onclick="event.stopPropagation(); openLightbox(this.src)">
+        </div>`;
+      }
+    }
+
+    const noLabelClass = hasLabels ? '' : ' no-labels';
+    sHtml += `<div class="shipment${noLabelClass}" style="animation:fadeUp .45s ease ${.03*i}s both">
+      <div class="shipment-info">
+        <div class="shipment-header">
+          <div>
+            <div class="shipment-num">Shipment ${i+1} / ${displayEntries.length}${s.label ? ' · Label p' + s.label.pageNum : ''}</div>
+            ${splitBadge}
+            <div class="recipient-name">${s.name}</div>
+            <div class="recipient-user">@${s.username}</div>
+            <div class="recipient-address">${al}<br>${cl}</div>
+          </div>
+          <span class="box-badge ${box.cls}">${box.label}</span>
+        </div>
+        <div class="items-list">${ih}</div>
+      </div>
+      ${labelHtml}
+    </div>`;
+  });
+
+  const sbHtml = Object.entries(boxCounts).sort((a,b)=>b[1]-a[1]).map(([s,c])=>`<div class="summary-card"><div class="summary-num">${c}</div><div class="summary-label">${s}</div></div>`).join('');
+  const matchSummary = hasLabels ? `<div class="summary-card"><div class="summary-num">${matchedCount}</div><div class="summary-label">Labels Matched</div></div>` : '';
+
+  // Find unmatched labels
+  const unmatchedLabels = pdfPages.filter(p => !allUsedPages.has(p.pageNum));
+  const unmatchedSummary = hasLabels && unmatchedLabels.length > 0
+    ? `<div class="summary-card" style="border-color: rgba(239,68,68,0.3);"><div class="summary-num" style="color: #f87171;">${unmatchedLabels.length}</div><div class="summary-label">Unmatched Labels</div></div>`
+    : '';
+
+  html += `<div class="summary"><div class="summary-card"><div class="summary-num">${displayEntries.length}</div><div class="summary-label">Total Shipments</div></div>${skippedRed > 0 ? `<div class="summary-card" style="border-color: rgba(239,68,68,0.3); cursor:pointer;" onclick="document.getElementById('skipped-section').scrollIntoView({behavior:'smooth'})"><div class="summary-num" style="color: #f87171;">${skippedRed}</div><div class="summary-label">Red — Skipped ↓</div></div>` : ''}${matchSummary}${unmatchedSummary}${sbHtml}</div>${sHtml}`;
+
+  // Render unmatched labels section with reasons
+  if (hasLabels && unmatchedLabels.length > 0) {
+    html += `<div class="unmatched-section">
+      <div class="unmatched-header">⚠️ ${unmatchedLabels.length} Unmatched Label${unmatchedLabels.length !== 1 ? 's' : ''}</div>
+      <div class="unmatched-grid">`;
+    unmatchedLabels.forEach(p => {
+      const preview = p.text.length > 0 ? p.text.substring(0, 120) : '';
+      let reason = '';
+      let reasonClass = 'reason-warning';
+      if (!p.text || p.text.length < 5) {
+        reason = 'OCR couldn\'t read this label. Click the thumbnail to identify it manually.';
+      } else {
+        let bestName = '', bestScore = 0, bestUser = '';
+        shipments.forEach(s => {
+          const sc = scoreMatch(p, s);
+          if (sc > bestScore) { bestScore = sc; bestName = s.name; bestUser = s.username; }
+        });
+        if (bestScore < 5) {
+          const words = p.text.split(' ').filter(w => w.length > 2);
+          const nameGuess = words.slice(0, 4).join(' ');
+          reason = `No match. OCR read: "${nameGuess}…" — not in winners sheet or name doesn't match CSV.`;
+        } else if (bestScore < 12) {
+          reason = `Closest: <strong>${bestName}</strong> (@${bestUser}) · score ${bestScore} (too low to auto-match).`;
+        } else {
+          const existingLabels = labelsByUser[bestUser] || [];
+          if (existingLabels.length > 0) {
+            reason = `Matched <strong>${bestName}</strong> (@${bestUser}) but they already have ${existingLabels.length} label${existingLabels.length > 1 ? 's' : ''} assigned.`;
+            reasonClass = 'reason-info';
+          } else {
+            reason = `Matched <strong>${bestName}</strong> but they're not in the final shipments (missing from CSV or winners).`;
+          }
+        }
+      }
+      html += `<div class="unmatched-card">
+        <img src="${p.imageUrl}" alt="Page ${p.pageNum}" onclick="openLightbox(this.src)">
+        <div class="unmatched-info">
+          <div class="unmatched-page">Page ${p.pageNum}</div>
+          <div class="unmatched-reason ${reasonClass}">${reason}</div>
+          ${preview ? `<div class="unmatched-text">OCR: ${preview}</div>` : ''}
+        </div>
       </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Render skipped red items section
+  if (skippedItems.length > 0) {
+    // Group by username
+    const grouped = {};
+    skippedItems.forEach(si => {
+      if (!grouped[si.username]) grouped[si.username] = [];
+      grouped[si.username].push(si);
+    });
+    html += `<div id="skipped-section" class="skipped-section">
+      <div class="skipped-header">🚫 ${skippedItems.length} Skipped Item${skippedItems.length !== 1 ? 's' : ''} (Red Cells)</div>
+      <div class="skipped-hint">These items had red username cells in the winners sheet and were excluded from packing.</div>
+      <div class="skipped-list">`;
+    Object.entries(grouped).forEach(([user, items]) => {
+      html += `<div class="skipped-user-card">
+        <div class="skipped-user">@${user} · ${items.length} item${items.length !== 1 ? 's' : ''}</div>`;
+      items.forEach(it => {
+        html += `<div class="skipped-item"><span class="item-num">#${it.auctionNum}</span><span class="item-name">${it.itemName}</span><span class="item-tag tag-drone" style="background:rgba(239,68,68,0.08);color:#f87171;">${it.reason || 'Red cell'}</span></div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // ── TRACKING EXPORT ──
+  // Tracking follows the SHIPMENT ASSIGNMENTS — items packed in the same box
+  // get the same tracking number
+
+  // Step 1: For each user, get their shipments (displayEntries) in label order
+  // and assign CSV trackings to shipments in order
+  const shipmentTrackingMap = {}; // "username|auctionNum" → tracking
+
+  // Group displayEntries by username
+  const entriesByUser = {};
+  displayEntries.forEach(e => {
+    if (!entriesByUser[e.username]) entriesByUser[e.username] = [];
+    entriesByUser[e.username].push(e);
+  });
+
+  Object.entries(entriesByUser).forEach(([username, entries]) => {
+    const trackings = csvTrackingByUser[username] || [];
+
+    if (trackings.length === 0) {
+      // No tracking — leave all blank
       return;
     }
 
-    dot.className = 'live-dot';
-    const pub = data.publishedAt ? new Date(data.publishedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
-    statusText.textContent = `Live · ${data.count} shipments · ${data.date}`;
-    statusTime.textContent = pub ? `Published ${pub}` : '';
-
-    const shipments = data.shipments;
-    const hasLabels = shipments.some(s => s.labelImage);
-
-    // Box counts for summary
-    const boxCounts = {};
-    shipments.forEach(s => {
-      const bk = (s.box || '').replace('⚡ ', '').replace(' ⚠️ Verify fit', '').trim();
-      if (bk) boxCounts[bk] = (boxCounts[bk] || 0) + 1;
-    });
-
-    const sbHtml = Object.entries(boxCounts).sort((a, b) => b[1] - a[1])
-      .map(([s, c]) => `<div class="summary-card"><div class="summary-num">${c}</div><div class="summary-label">${s}</div></div>`).join('');
-
-    let html = `
-      <div class="manifest-header">
-        <div>
-          <div class="manifest-title">⚡ Packing Guide — ${data.sheetName || data.date}</div>
-          <div class="manifest-date">${shipments.length} shipment${shipments.length !== 1 ? 's' : ''}${hasLabels ? ' · labels included' : ''}</div>
-        </div>
-      </div>
-      <div class="summary">
-        <div class="summary-card"><div class="summary-num">${shipments.length}</div><div class="summary-label">Total Shipments</div></div>
-        ${sbHtml}
-      </div>`;
-
-    shipments.forEach((s, i) => {
-      const al = [s.addr1, s.addr2].filter(Boolean).join(', ');
-      const cl = `${s.city}, ${s.state} ${s.zip}`;
-      const splitBadge = s.splitInfo ? `<div class="split-badge">${s.splitInfo}</div>` : '';
-
-      // Group items: 3× Boom Box Mini  #101, #102, #103
-      const groups = groupItems(s.displayItems);
-      const ih = groups.map(g =>
-        `<div class="item-row">
-          <span class="item-qty">${g.qty}×</span>
-          <span class="item-name">${g.itemName}</span>
-          <span class="item-nums">${g.auctions.map(a => '#' + a).join(', ')}</span>
-        </div>`
-      ).join('');
-
-      const labelHtml = s.labelImage
-        ? `<div class="shipment-label-panel">
-            <img src="${s.labelImage}" alt="Label" onclick="event.stopPropagation(); openLightbox(this.src)">
-           </div>`
-        : '';
-
-      const noLabelClass = hasLabels && !s.labelImage ? '' : (!hasLabels ? ' no-labels' : '');
-
-      html += `<div class="shipment${noLabelClass}" style="animation:fadeUp .45s ease ${.03 * i}s both">
-        <div class="shipment-info">
-          <div class="shipment-header">
-            <div>
-              <div class="shipment-num">Shipment ${i + 1} / ${shipments.length}</div>
-              ${splitBadge}
-              <div class="recipient-name">${s.name}</div>
-              <div class="recipient-user">@${s.username}</div>
-              <div class="recipient-address">${al}<br>${cl}</div>
-            </div>
-            <span class="box-badge ${s.boxCls || 'box-large'}">${s.box || '⚡ Check manually'}</span>
-          </div>
-          <div class="items-list">${ih}</div>
-        </div>
-        ${labelHtml}
-      </div>`;
-    });
-
-    content.innerHTML = html;
-
-  } catch (err) {
-    dot.className = 'live-dot error';
-    statusText.textContent = 'Error: ' + err.message;
-    statusTime.textContent = '';
-  }
-}
-
-async function printLabels() {
-  // Check if original PDFs were uploaded
-  const res = await fetch('/manifest/labels-pdf');
-  const data = await res.json();
-  if (data.count > 0) {
-    // Open each original PDF in a new tab — full quality, native browser printing
-    for (let i = 0; i < data.count; i++) {
-      window.open(`/manifest/labels-pdf/${i}`, '_blank');
+    if (trackings.length === 1 || entries.length === 1) {
+      // 1 tracking or 1 shipment — all items get same tracking
+      entries.forEach(e => {
+        e.displayItems.forEach(it => {
+          shipmentTrackingMap[username + '|' + it.auctionNum] = trackings[0];
+        });
+      });
+    } else {
+      // Multiple trackings + multiple shipments
+      // Assign trackings to shipments in order (label page order = CSV order)
+      entries.forEach((e, idx) => {
+        const tracking = trackings[Math.min(idx, trackings.length - 1)];
+        e.displayItems.forEach(it => {
+          shipmentTrackingMap[username + '|' + it.auctionNum] = tracking;
+        });
+      });
     }
-  } else {
-    // No PDFs uploaded — fall back to printing the page
-    window.print();
+  });
+
+  // Step 2: Build tracking rows for the winners sheet
+  const trackingRows = sheetRows.map(row => {
+    if (row.isRed) return { ...row, tracking: '' };
+    const key = row.username + '|' + row.auctionNum;
+    return { ...row, tracking: shipmentTrackingMap[key] || '' };
+  });
+
+  // Tracking export section — always show if CSV has tracking data
+  const filledCount = trackingRows.filter(r => r.tracking).length;
+  html += `<div id="tracking-section" class="tracking-section">
+    <div class="tracking-header">
+      <div>
+        <div class="tracking-title">📋 Tracking Export</div>
+        <div class="tracking-subtitle">${filledCount} of ${sheetRows.length - skippedRed} rows have tracking${trackingCol ? ` · Source: "${trackingCol}" column` : ' · ⚠️ No tracking column found in CSV'} · Copy and paste into Column A of the winners sheet</div>
+      </div>
+      <div class="tracking-buttons">
+        <button class="btn btn-secondary" onclick="copyTrackings()">📋 Copy Tracking Column</button>
+      </div>
+    </div>
+    <div class="tracking-table-wrap">
+      <table class="tracking-table">
+        <thead><tr><th>Row</th><th>#</th><th>Item</th><th>Username</th><th>Tracking</th></tr></thead>
+        <tbody>`;
+  trackingRows.forEach(r => {
+    const rowClass = r.isRed ? 'tracking-row-red' : r.tracking ? 'tracking-row-ok' : 'tracking-row-empty';
+    html += `<tr class="${rowClass}">
+      <td>${r.rowIdx + 1}</td>
+      <td>${r.auctionNum}</td>
+      <td>${r.itemName}</td>
+      <td>@${r.username}</td>
+      <td class="tracking-cell">${r.isRed ? '<span class="tracking-skip">SKIPPED</span>' : (r.tracking || '<span class="tracking-missing">—</span>')}</td>
+    </tr>`;
+  });
+  html += `</tbody></table></div></div>`;
+
+  // Store tracking data globally for copy function
+  window._trackingRows = trackingRows;
+
+  const m = document.getElementById('manifest'); m.innerHTML = html; m.style.display = 'block'; m.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('jumpTrackingBtn').style.display = '';
+  } catch(err) { showError('Error: ' + err.message); }
+}
+
+async function publishToWeb() {
+  const btn = document.getElementById('publishBtn');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.textContent = '⏳ Publishing...';
+  try {
+    const shipments = (window._displayEntries || []).map(e => ({
+      username: e.username,
+      name: e.name,
+      addr1: e.addr1,
+      addr2: e.addr2 || '',
+      city: e.city,
+      state: e.state,
+      zip: e.zip,
+      displayItems: e.displayItems,
+      splitInfo: e.splitInfo || null,
+      labelImage: e.label ? e.label.imageUrl : null,
+      labelPage: e.label ? e.label.pageNum : null,
+    }));
+    const payload = {
+      date: window._sheetName,
+      sheetName: window._sheetName,
+      shipments,
+      publishedAt: new Date().toISOString()
+    };
+    const res = await fetch('https://discount-bids-backend.onrender.com/manifest/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Server error ' + res.status);
+    const data = await res.json();
+    if (data.success) {
+      btn.textContent = '✓ Published!';
+      btn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)';
+      btn.style.boxShadow = '0 2px 14px rgba(22,163,74,0.5)';
+      const link = document.getElementById('publishLink');
+      if (link) link.style.display = '';
+    } else {
+      throw new Error(data.error || 'Publish failed');
+    }
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = '🌐 Publish to Web';
+    alert('Publish failed: ' + err.message);
   }
 }
 
-load();
-setInterval(load, 60000);
+function copyTrackings() {
+  if (!window._trackingRows) return;
+  const text = window._trackingRows.map(r => r.isRed ? '' : (r.tracking || '')).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = event.target;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy Tracking Column', 2000);
+  });
+}
 </script>
 </body>
 </html>
