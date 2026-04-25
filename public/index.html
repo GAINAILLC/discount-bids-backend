@@ -1441,10 +1441,12 @@ async function publishToWeb() {
         boxCls: box.cls,
       };
     });
+    const manifestHtml = document.getElementById('manifest').innerHTML;
     const payload = {
       date: window._sheetName,
       sheetName: window._sheetName,
       shipments,
+      html: manifestHtml,
       publishedAt: new Date().toISOString()
     };
     const res = await fetch('https://discount-bids-backend.onrender.com/manifest/publish', {
