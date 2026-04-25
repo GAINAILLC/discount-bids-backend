@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -14,44 +15,79 @@ app.use((req, res, next) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Manifest store (in-memory) ────────────────────────────────────────────────
-// Holds the last published manifest so any device can view it
-let manifestStore = null;
+// ── Supabase client ───────────────────────────────────────────────────────────
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
 
-// Publish manifest (called from the label-maker's browser after generating)
-app.post('/manifest/publish', (req, res) => {
-  const { date, sheetName, shipments, labelImages, publishedAt } = req.body;
-  if (!shipments || !Array.isArray(shipments)) {
-    return res.status(400).json({ success: false, error: 'Missing shipments array' });
+async function getManifest() {
+  const { data, error } = await supabase.from('manifest').select('data').eq('id', 'current').maybeSingle();
+  if (error || !data) return null;
+  return data.data;
+}
+
+async function saveManifest(value) {
+  const { error } = await supabase.from('manifest').upsert({ id: 'current', data: value, updated_at: new Date().toISOString() });
+  if (error) throw error;
+}
+
+async function deleteManifest() {
+  const { error } = await supabase.from('manifest').delete().eq('id', 'current');
+  if (error) throw error;
+}
+
+// ── Manifest routes ───────────────────────────────────────────────────────────
+
+// Publish manifest (called from the label maker after generating)
+app.post('/manifest/publish', async (req, res) => {
+  try {
+    const { date, sheetName, shipments, labelImages, publishedAt } = req.body;
+    if (!shipments || !Array.isArray(shipments)) {
+      return res.status(400).json({ success: false, error: 'Missing shipments array' });
+    }
+    const record = {
+      date: date || sheetName || new Date().toLocaleDateString('en-US', { timeZone: 'America/Chicago' }),
+      sheetName: sheetName || date,
+      shipments,
+      labelImages: labelImages || {},
+      publishedAt: publishedAt || new Date().toISOString(),
+      count: shipments.length
+    };
+    await saveManifest(record);
+    console.log(`[Manifest] Published: ${record.count} shipments for ${record.date}`);
+    res.json({ success: true, count: record.count });
+  } catch (err) {
+    console.error('[Manifest] Publish error:', err.message);
+    res.status(500).json({ success: false, error: err.message });
   }
-  manifestStore = {
-    date: date || sheetName || new Date().toLocaleDateString('en-US', { timeZone: 'America/Chicago' }),
-    sheetName: sheetName || date,
-    shipments,       // [{ username, name, addr1, addr2, city, state, zip, displayItems, splitInfo, box, labelImage }]
-    labelImages: labelImages || {},   // { username_pageNum: base64png }
-    publishedAt: publishedAt || new Date().toISOString(),
-    count: shipments.length
-  };
-  console.log(`[Manifest] Published: ${manifestStore.count} shipments for ${manifestStore.date}`);
-  res.json({ success: true, count: manifestStore.count });
 });
 
 // Get current manifest
-app.get('/manifest', (req, res) => {
-  if (!manifestStore) return res.json({ empty: true });
-  res.json(manifestStore);
+app.get('/manifest', async (req, res) => {
+  try {
+    const manifest = await getManifest();
+    if (!manifest) return res.json({ empty: true });
+    res.json(manifest);
+  } catch (err) {
+    console.error('[Manifest] Get error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Clear manifest
-app.delete('/manifest', (req, res) => {
-  manifestStore = null;
-  res.json({ success: true });
+app.delete('/manifest', async (req, res) => {
+  try {
+    await deleteManifest();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// ── PDF label store ───────────────────────────────────────────────────────────
-let pdfStore = []; // array of Buffer (one per uploaded PDF file)
+// ── PDF label store (in-memory, used within a single session) ─────────────────
+let pdfStore = [];
 
-// Upload original PDFs (base64 encoded)
 app.post('/manifest/labels-pdf', (req, res) => {
   const { pdfs } = req.body;
   if (!pdfs || !Array.isArray(pdfs)) return res.status(400).json({ error: 'Missing pdfs array' });
@@ -60,7 +96,6 @@ app.post('/manifest/labels-pdf', (req, res) => {
   res.json({ success: true, count: pdfStore.length });
 });
 
-// Serve a PDF by index
 app.get('/manifest/labels-pdf/:index', (req, res) => {
   const idx = parseInt(req.params.index);
   if (isNaN(idx) || idx < 0 || idx >= pdfStore.length) return res.status(404).json({ error: 'Not found' });
@@ -69,20 +104,19 @@ app.get('/manifest/labels-pdf/:index', (req, res) => {
   res.send(pdfStore[idx]);
 });
 
-// How many PDFs are stored
 app.get('/manifest/labels-pdf', (req, res) => {
   res.json({ count: pdfStore.length });
 });
 
+// ── Health ────────────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
-// GitHub webhook → auto-redeploy on push to master
+// ── GitHub webhook → auto-redeploy ───────────────────────────────────────────
 app.post('/github-webhook', async (req, res) => {
   const event = req.headers['x-github-event'];
   const branch = req.body?.ref;
   if (event !== 'push' || !branch?.endsWith('/master')) return res.json({ skipped: true });
   res.json({ triggered: true });
-  // Call Render API to deploy
   const https = require('https');
   const payload = JSON.stringify({ clearCache: 'do_not_clear' });
   const options = {
