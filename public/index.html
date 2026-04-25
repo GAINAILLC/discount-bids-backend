@@ -1423,19 +1423,24 @@ async function publishToWeb() {
   btn.disabled = true;
   btn.textContent = '⏳ Publishing...';
   try {
-    const shipments = (window._displayEntries || []).map(e => ({
-      username: e.username,
-      name: e.name,
-      addr1: e.addr1,
-      addr2: e.addr2 || '',
-      city: e.city,
-      state: e.state,
-      zip: e.zip,
-      displayItems: e.displayItems,
-      splitInfo: e.splitInfo || null,
-      labelImage: e.label ? e.label.imageUrl : null,
-      labelPage: e.label ? e.label.pageNum : null,
-    }));
+    const shipments = (window._displayEntries || []).map(e => {
+      const box = getBoxRecommendation((e.displayItems || []).map(it => it.itemName));
+      return {
+        username: e.username,
+        name: e.name,
+        addr1: e.addr1,
+        addr2: e.addr2 || '',
+        city: e.city,
+        state: e.state,
+        zip: e.zip,
+        displayItems: e.displayItems,
+        splitInfo: e.splitInfo || null,
+        labelImage: e.label ? e.label.imageUrl : null,
+        labelPage: e.label ? e.label.pageNum : null,
+        boxLabel: box.label,
+        boxCls: box.cls,
+      };
+    });
     const payload = {
       date: window._sheetName,
       sheetName: window._sheetName,

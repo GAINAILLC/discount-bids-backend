@@ -273,6 +273,8 @@ async function loadManifest() {
         ? `<div class="shipment-label-panel"><img src="${s.labelImage}" alt="Label" onclick="event.stopPropagation(); openLightbox(this.src)"></div>`
         : `<div class="shipment-label-panel"><div class="no-label-msg">⚠️ No label matched</div></div>`;
 
+      const boxBadge = s.boxLabel ? `<span class="box-badge ${s.boxCls || 'box-unknown'}">${s.boxLabel}</span>` : '';
+
       html += `<div class="shipment" style="animation-delay:${0.03 * i}s">
         <div class="shipment-info">
           <div class="shipment-header">
@@ -283,6 +285,7 @@ async function loadManifest() {
               <div class="recipient-user">@${s.username}</div>
               <div class="recipient-address">${al}<br>${cl}</div>
             </div>
+            ${boxBadge}
           </div>
           <div class="items-list">${ih}</div>
         </div>
