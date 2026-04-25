@@ -108,6 +108,9 @@ app.get('/manifest/labels-pdf', (req, res) => {
   res.json({ count: pdfStore.length });
 });
 
+// ── Viewer page ───────────────────────────────────────────────────────────────
+app.get('/view', (req, res) => res.sendFile(path.join(__dirname, 'public', 'view.html')));
+
 // ── Health ────────────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
