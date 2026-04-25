@@ -191,7 +191,7 @@
     cursor: pointer; transition: transform 0.2s;
   }
   .shipment-label-panel img:hover { transform: scale(1.02); }
-  .no-label-msg { font-family: var(--font-head); font-size: 12px; color: #f87171; letter-spacing: 0.5px; text-align: center; padding: 12px 20px; margin-bottom: 8px; background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.15); border-radius: var(--radius-sm); }
+  .no-label-msg { font-family: var(--font-head); font-size: 12px; color: #f87171; letter-spacing: 0.5px; text-align: center; padding: 12px 20px; margin-bottom: 8px; background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.15); border-radius: var(--radius-sm); }
 
   /* Unmatched labels section */
   .unmatched-section { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--border); }
@@ -199,10 +199,10 @@
   .unmatched-hint { font-size: 13px; color: var(--text-dim); margin-bottom: 18px; line-height: 1.5; }
   .unmatched-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
   .unmatched-card {
-    background: var(--bg-card); border: 1px solid rgba(59,130,246,0.15); border-radius: var(--radius);
+    background: var(--bg-card); border: 1px solid rgba(239,68,68,0.15); border-radius: var(--radius);
     overflow: hidden; transition: border-color 0.2s;
   }
-  .unmatched-card:hover { border-color: rgba(59,130,246,0.35); }
+  .unmatched-card:hover { border-color: rgba(239,68,68,0.35); }
   .unmatched-card img { width: 100%; cursor: pointer; display: block; border-bottom: 1px solid var(--border); }
   .unmatched-info { padding: 12px 14px; }
   .unmatched-page { font-family: var(--font-head); font-size: 12px; font-weight: 700; color: #f87171; margin-bottom: 4px; }
@@ -218,11 +218,11 @@
   .skipped-header { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: #f87171; margin-bottom: 6px; }
   .skipped-hint { font-size: 13px; color: var(--text-dim); margin-bottom: 18px; }
   .skipped-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
-  .skipped-user-card { background: var(--bg-card); border: 1px solid rgba(59,130,246,0.15); border-radius: var(--radius); padding: 16px 18px; }
-  .skipped-user-card:hover { border-color: rgba(59,130,246,0.3); }
+  .skipped-user-card { background: var(--bg-card); border: 1px solid rgba(239,68,68,0.15); border-radius: var(--radius); padding: 16px 18px; }
+  .skipped-user-card:hover { border-color: rgba(239,68,68,0.3); }
   .skipped-user { font-family: var(--font-mono); font-size: 13px; color: #f87171; font-weight: 600; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle); }
   .skipped-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; }
-  .skipped-item .item-num { background: rgba(59,130,246,0.08); color: #f87171; }
+  .skipped-item .item-num { background: rgba(239,68,68,0.08); color: #f87171; }
   .skipped-item .item-name { color: var(--text-dim); }
 
   /* Tracking export section */
@@ -239,7 +239,7 @@
   .tracking-row-ok { background: var(--bg-card); }
   .tracking-row-ok:hover { background: var(--bg-card-hover); }
   .tracking-row-empty { background: var(--bg-card); }
-  .tracking-row-red { background: rgba(59,130,246,0.04); }
+  .tracking-row-red { background: rgba(239,68,68,0.04); }
   .tracking-row-red td { color: var(--text-muted); }
   .tracking-cell { font-family: var(--font-mono); font-size: 11px; color: var(--cyan); letter-spacing: 0.3px; user-select: all; }
   .tracking-skip { color: #f87171; font-family: var(--font-head); font-size: 10px; letter-spacing: 1px; }
@@ -286,13 +286,14 @@
   .item-num { background: rgba(59,130,246,0.08); color: var(--blue-bright); font-family: var(--font-mono); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; min-width: 38px; text-align: center; }
   .item-qty { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--gold-bright); min-width: 36px; text-align: center; }
   .item-nums { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); white-space: nowrap; }
+  .set-note { display: block; font-family: var(--font-head); font-size: 13px; font-weight: 700; color: #fb923c; background: rgba(251,146,60,0.08); border: 1px solid rgba(251,146,60,0.2); border-radius: 4px; padding: 4px 10px; margin-top: 4px; letter-spacing: 0.5px; }
   .item-name { font-size: 14px; font-weight: 600; flex: 1; color: var(--text-bright); }
   .item-tag { font-family: var(--font-head); font-size: 10px; padding: 3px 9px; border-radius: 4px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
   .tag-drone { background: rgba(59,130,246,0.08); color: var(--blue-bright); }
   .tag-earphone { background: rgba(212,168,71,0.08); color: var(--gold); }
   .tag-hard { background: rgba(34,211,238,0.06); color: var(--cyan); }
 
-  .error { background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.2); color: #f87171; padding: 14px 18px; border-radius: var(--radius-sm); margin-bottom: 14px; font-size: 14px; font-weight: 600; }
+  .error { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); color: #f87171; padding: 14px 18px; border-radius: var(--radius-sm); margin-bottom: 14px; font-size: 14px; font-weight: 600; }
 
   .lightbox { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); align-items: center; justify-content: center; cursor: pointer; }
   .lightbox.open { display: flex; }
@@ -333,6 +334,7 @@
     .item-num { background: #f0f0f0; color: #333; }
     .item-qty { color: #111; }
     .item-nums { color: #666; }
+    .set-note { color: #c2410c; background: #fff7ed; border-color: #fdba74; }
     .item-row:hover { background: none; }
     .recipient-name, .item-name { color: #111; }
   }
@@ -872,11 +874,31 @@ function generate() {
   const userItemMap = {};
   const bundlesByUser = {}; // username → [{itemName, fromAuction}]
 
-  // Find NOTES column index
+  // Find NOTES column index — search headers broadly
   const headerRow = rows[0] || [];
   let notesColIdx = -1;
   for (let c = 0; c < headerRow.length; c++) {
-    if (String(headerRow[c]).trim().toUpperCase() === 'NOTES') { notesColIdx = c; break; }
+    const h = String(headerRow[c]).trim().toUpperCase();
+    if (h === 'NOTES' || h === 'NOTE' || h === 'COMMENTS' || h === 'REMARKS') { notesColIdx = c; break; }
+  }
+  // Fallback: check all header cells for partial match
+  if (notesColIdx === -1) {
+    for (let c = 0; c < headerRow.length; c++) {
+      if (/note/i.test(String(headerRow[c]))) { notesColIdx = c; break; }
+    }
+  }
+  // Last resort: scan data rows for bundle/cancelled/only patterns to find the column
+  if (notesColIdx === -1) {
+    for (let c = 4; c < 10; c++) { // check columns E through J
+      for (let r = 1; r < Math.min(rows.length, 30); r++) {
+        const val = String(rows[r]?.[c] || '').toUpperCase();
+        if (val === 'CANCELLED' || /BUNDLE/i.test(val) || /\(ONLY/i.test(val) || /\(VR/i.test(val)) {
+          notesColIdx = c;
+          break;
+        }
+      }
+      if (notesColIdx >= 0) break;
+    }
   }
 
   for (let i = 1; i < rows.length; i++) {
@@ -897,7 +919,6 @@ function generate() {
 
     // Check for bundle in notes — format: "21 LCD TABLET(BUNDLE)" or just "LCD TABLET(BUNDLE)"
     if (notes && /bundle/i.test(notes)) {
-      // Strip leading price number
       const bundleItem = notes.replace(/^\d+\s*/, '').trim();
       if (bundleItem) {
         if (!bundlesByUser[wu]) bundlesByUser[wu] = [];
@@ -905,9 +926,26 @@ function generate() {
       }
     }
 
+    // Check for set override — "5 (ONLY EARBUDS)" or "19 (VR & EARBUDS)"
+    // Anything in parentheses that's NOT a bundle = which parts of the set to pack
+    let actualItemName = iN;
+    let setNote = '';
+    if (notes && !(/bundle/i.test(notes))) {
+      const parenMatch = notes.match(/\(([^)]+)\)/);
+      if (parenMatch) {
+        let parts = parenMatch[1].trim();
+        // Remove "ONLY" prefix if present
+        const hadOnly = /^ONLY\s+/i.test(parts);
+        parts = parts.replace(/^ONLY\s+/i, '').trim();
+        if (parts) {
+          setNote = `⚠️ PACK ONLY: ${parts.toUpperCase()}`;
+        }
+      }
+    }
+
     sheetRows.push({ rowIdx: i, auctionNum: an, itemName: iN, username: wu, isRed: false });
     if (!userItemMap[wu]) userItemMap[wu] = [];
-    userItemMap[wu].push({ auctionNum: an, itemName: iN });
+    userItemMap[wu].push({ auctionNum: an, itemName: actualItemName, setNote });
   }
 
   // Add bundle items to user's item list
@@ -1097,7 +1135,7 @@ function generate() {
     }
 
     // Return just the original item data (strip enrichment), skip empty bins
-    return bins.map(bin => bin.map(it => ({ auctionNum: it.auctionNum, itemName: it.itemName })));
+    return bins.map(bin => bin.map(it => ({ auctionNum: it.auctionNum, itemName: it.itemName, setNote: it.setNote || '' })));
   }
 
   // ── BUILD DISPLAY ENTRIES ──
@@ -1143,11 +1181,15 @@ function generate() {
   displayEntries.forEach(e => { if (e.label) allUsedPages.add(e.label.pageNum); });
   const matchedCount = allUsedPages.size;
 
+  const bundleCount = Object.values(bundlesByUser).reduce((s, arr) => s + arr.length, 0);
+  const setNoteCount = Object.values(userItemMap).flat().filter(it => it.setNote).length;
+  const notesInfo = notesColIdx >= 0 ? (bundleCount + setNoteCount > 0 ? ` · ${bundleCount} bundles · ${setNoteCount} set notes` : ' · Notes col found') : '';
+
   // Store globally for publish
   window._displayEntries = displayEntries;
   window._sheetName = sheetName;
 
-  let html = `<div class="manifest-header"><div><div class="manifest-title">⚡ Packing Guide — ${sheetName}</div><div class="manifest-date">${today} · ${displayEntries.length} shipment${displayEntries.length!==1?'s':''}${skippedRed > 0 ? ` · ${skippedRed} red item${skippedRed!==1?'s':''} skipped` : ''}${hasLabels ? ` · ${matchedCount} label${matchedCount!==1?'s':''} matched` : ''}</div></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;"><button id="publishBtn" class="btn" onclick="publishToWeb()" style="background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);box-shadow:0 2px 14px rgba(22,163,74,0.3);">🌐 Publish to Web</button><a id="publishLink" href="https://discount-bids-backend.onrender.com/view" target="_blank" style="display:none;font-family:var(--font-mono);font-size:12px;color:var(--cyan);text-decoration:none;border:1px solid rgba(34,211,238,0.3);padding:6px 12px;border-radius:var(--radius-sm);">→ View Live</a></div></div>`;
+  let html = `<div class="manifest-header"><div><div class="manifest-title">⚡ Packing Guide — ${sheetName}</div><div class="manifest-date">${today} · ${displayEntries.length} shipment${displayEntries.length!==1?'s':''}${skippedRed > 0 ? ` · ${skippedRed} skipped` : ''}${notesInfo}${hasLabels ? ` · ${matchedCount} label${matchedCount!==1?'s':''} matched` : ''}</div></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;"><button id="publishBtn" class="btn" onclick="publishToWeb()" style="background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);box-shadow:0 2px 14px rgba(22,163,74,0.3);">🌐 Publish to Web</button><a id="publishLink" href="https://discount-bids-backend.onrender.com/view" target="_blank" style="display:none;font-family:var(--font-mono);font-size:12px;color:var(--cyan);text-decoration:none;border:1px solid rgba(34,211,238,0.3);padding:6px 12px;border-radius:var(--radius-sm);">→ View Live</a></div></div>`;
 
   let sHtml = '';
   displayEntries.forEach((s, i) => {
@@ -1159,13 +1201,14 @@ function generate() {
     // Group items by name and count quantities
     const itemGroups = {};
     s.displayItems.forEach(it => {
-      const key = it.itemName;
-      if (!itemGroups[key]) itemGroups[key] = { itemName: key, auctions: [], qty: 0 };
+      const key = it.itemName + '|||' + (it.setNote || '');
+      if (!itemGroups[key]) itemGroups[key] = { itemName: it.itemName, auctions: [], qty: 0, setNote: it.setNote || '' };
       itemGroups[key].auctions.push(it.auctionNum);
       itemGroups[key].qty++;
     });
     const ih = Object.values(itemGroups).map(g => {
-      return `<div class="item-row"><span class="item-qty">${g.qty}×</span><span class="item-name">${g.itemName}</span><span class="item-nums">${g.auctions.map(a => '#'+a).join(', ')}</span></div>`;
+      const setLabel = g.setNote ? `<span class="set-note">${g.setNote}</span>` : '';
+      return `<div class="item-row"><span class="item-qty">${g.qty}×</span><span class="item-name">${g.itemName}${setLabel}</span><span class="item-nums">${g.auctions.map(a => '#'+a).join(', ')}</span></div>`;
     }).join('');
 
     // Split badge
@@ -1216,10 +1259,10 @@ function generate() {
   // Find unmatched labels
   const unmatchedLabels = pdfPages.filter(p => !allUsedPages.has(p.pageNum));
   const unmatchedSummary = hasLabels && unmatchedLabels.length > 0
-    ? `<div class="summary-card" style="border-color: rgba(59,130,246,0.3);"><div class="summary-num" style="color: #f87171;">${unmatchedLabels.length}</div><div class="summary-label">Unmatched Labels</div></div>`
+    ? `<div class="summary-card" style="border-color: rgba(239,68,68,0.3);"><div class="summary-num" style="color: #f87171;">${unmatchedLabels.length}</div><div class="summary-label">Unmatched Labels</div></div>`
     : '';
 
-  html += `<div class="summary"><div class="summary-card"><div class="summary-num">${displayEntries.length}</div><div class="summary-label">Total Shipments</div></div>${skippedRed > 0 ? `<div class="summary-card" style="border-color: rgba(59,130,246,0.3); cursor:pointer;" onclick="document.getElementById('skipped-section').scrollIntoView({behavior:'smooth'})"><div class="summary-num" style="color: #f87171;">${skippedRed}</div><div class="summary-label">Red — Skipped ↓</div></div>` : ''}${matchSummary}${unmatchedSummary}${sbHtml}</div>${sHtml}`;
+  html += `<div class="summary"><div class="summary-card"><div class="summary-num">${displayEntries.length}</div><div class="summary-label">Total Shipments</div></div>${skippedRed > 0 ? `<div class="summary-card" style="border-color: rgba(239,68,68,0.3); cursor:pointer;" onclick="document.getElementById('skipped-section').scrollIntoView({behavior:'smooth'})"><div class="summary-num" style="color: #f87171;">${skippedRed}</div><div class="summary-label">Red — Skipped ↓</div></div>` : ''}${matchSummary}${unmatchedSummary}${sbHtml}</div>${sHtml}`;
 
   // Render unmatched labels section with reasons
   if (hasLabels && unmatchedLabels.length > 0) {
@@ -1282,7 +1325,7 @@ function generate() {
       html += `<div class="skipped-user-card">
         <div class="skipped-user">@${user} · ${items.length} item${items.length !== 1 ? 's' : ''}</div>`;
       items.forEach(it => {
-        html += `<div class="skipped-item"><span class="item-num">#${it.auctionNum}</span><span class="item-name">${it.itemName}</span><span class="item-tag tag-drone" style="background:rgba(59,130,246,0.08);color:#f87171;">${it.reason || 'Red cell'}</span></div>`;
+        html += `<div class="skipped-item"><span class="item-num">#${it.auctionNum}</span><span class="item-name">${it.itemName}</span><span class="item-tag tag-drone" style="background:rgba(239,68,68,0.08);color:#f87171;">${it.reason || 'Red cell'}</span></div>`;
       });
       html += `</div>`;
     });
