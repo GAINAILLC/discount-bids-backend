@@ -296,13 +296,15 @@ async function loadManifest() {
       const cl = `${s.city}, ${s.state} ${s.zip}`;
       const groups = {};
       (s.displayItems || []).forEach(it => {
-        if (!groups[it.itemName]) groups[it.itemName] = { itemName: it.itemName, auctions: [], qty: 0 };
-        groups[it.itemName].auctions.push(it.auctionNum);
-        groups[it.itemName].qty++;
+        const key = it.itemName + '|||' + (it.setNote || '');
+        if (!groups[key]) groups[key] = { itemName: it.itemName, auctions: [], qty: 0, setNote: it.setNote || '' };
+        groups[key].auctions.push(it.auctionNum);
+        groups[key].qty++;
       });
-      const ih = Object.values(groups).map(g =>
-        `<div class="item-row"><span class="item-qty">${g.qty}×</span><span class="item-name">${g.itemName}</span><span class="item-nums">${g.auctions.map(a=>'#'+a).join(', ')}</span></div>`
-      ).join('');
+      const ih = Object.values(groups).map(g => {
+        const setLabel = g.setNote ? `<span class="set-note">${g.setNote}</span>` : '';
+        return `<div class="item-row"><span class="item-qty">${g.qty}×</span><span class="item-name">${g.itemName}${setLabel}</span><span class="item-nums">${g.auctions.map(a=>'#'+a).join(', ')}</span></div>`;
+      }).join('');
       const boxBadge = s.boxLabel ? `<span class="box-badge ${s.boxCls||'box-unknown'}">${s.boxLabel}</span>` : '';
       const splitBadge = s.splitInfo ? `<div class="split-badge">${s.splitInfo}</div>` : '';
       const labelHtml = s.labelImage
