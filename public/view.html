@@ -266,7 +266,7 @@ async function loadManifest() {
     const res = await fetch(BACKEND + '/manifest');
     const data = await res.json();
 
-    if (data.empty || !data.html) {
+    if (data.empty || !data.shipments) {
       dot.className = 'status-dot waiting';
       statusText.textContent = 'Waiting for manifest to be published';
       statusDate.textContent = '';
@@ -283,7 +283,49 @@ async function loadManifest() {
     const pub = data.publishedAt ? new Date(data.publishedAt) : null;
     statusDate.textContent = pub ? 'Published ' + pub.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
 
-    content.innerHTML = data.html;
+    // If full HTML was captured by label maker, inject it directly (exact match)
+    if (data.html) {
+      content.innerHTML = data.html;
+      return;
+    }
+
+    // Fallback: render from shipments array if html field missing
+    let html = `<div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);color:#fb923c;padding:10px 16px;border-radius:8px;font-family:var(--font-head);font-size:12px;letter-spacing:1px;margin-bottom:20px;">⚠️ LM USED OLD VERSION — Ask LM to Ctrl+Shift+R and republish for full detail</div>`;
+    data.shipments.forEach((s, i) => {
+      const al = [s.addr1, s.addr2].filter(Boolean).join(', ');
+      const cl = `${s.city}, ${s.state} ${s.zip}`;
+      const groups = {};
+      (s.displayItems || []).forEach(it => {
+        if (!groups[it.itemName]) groups[it.itemName] = { itemName: it.itemName, auctions: [], qty: 0 };
+        groups[it.itemName].auctions.push(it.auctionNum);
+        groups[it.itemName].qty++;
+      });
+      const ih = Object.values(groups).map(g =>
+        `<div class="item-row"><span class="item-qty">${g.qty}×</span><span class="item-name">${g.itemName}</span><span class="item-nums">${g.auctions.map(a=>'#'+a).join(', ')}</span></div>`
+      ).join('');
+      const boxBadge = s.boxLabel ? `<span class="box-badge ${s.boxCls||'box-unknown'}">${s.boxLabel}</span>` : '';
+      const splitBadge = s.splitInfo ? `<div class="split-badge">${s.splitInfo}</div>` : '';
+      const labelHtml = s.labelImage
+        ? `<div class="shipment-label-panel"><img src="${s.labelImage}" alt="Label" onclick="event.stopPropagation();openLightbox(this.src)"></div>`
+        : `<div class="shipment-label-panel"><div class="no-label-msg">⚠️ No label matched</div></div>`;
+      html += `<div class="shipment" style="animation:fadeUp .45s ease ${.03*i}s both">
+        <div class="shipment-info">
+          <div class="shipment-header">
+            <div>
+              <div class="shipment-num">Shipment ${i+1} / ${data.count}${s.labelPage?' · Label p'+s.labelPage:''}</div>
+              ${splitBadge}
+              <div class="recipient-name">${s.name}</div>
+              <div class="recipient-user">@${s.username}</div>
+              <div class="recipient-address">${al}<br>${cl}</div>
+            </div>
+            ${boxBadge}
+          </div>
+          <div class="items-list">${ih}</div>
+        </div>
+        ${labelHtml}
+      </div>`;
+    });
+    content.innerHTML = html;
 
   } catch (err) {
     dot.className = 'status-dot waiting';
