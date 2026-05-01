@@ -313,7 +313,7 @@
     body, body::before, body::after { background: #fff !important; }
     body::before, body::after { display: none; }
     .page-wrap { max-width: 100%; padding: 12px; }
-    .upload-area, .controls, .lightbox, .label-picker, .tracking-buttons { display: none !important; }
+    .upload-area, .controls, .lightbox, .label-picker, .tracking-buttons, #publishBtn, #publishLink { display: none !important; }
     h1 { -webkit-text-fill-color: #1a1a2e; }
     .shipment { border: 1px solid #ddd; break-inside: avoid; background: #fff; box-shadow: none !important; }
     .shipment:hover { transform: none; box-shadow: none; }
@@ -881,18 +881,18 @@ function generate() {
     const h = String(headerRow[c]).trim().toUpperCase();
     if (h === 'NOTES' || h === 'NOTE' || h === 'COMMENTS' || h === 'REMARKS') { notesColIdx = c; break; }
   }
-  // Fallback: check all header cells for partial match
+  // Partial match — "Notes (Payment Status)" etc
   if (notesColIdx === -1) {
     for (let c = 0; c < headerRow.length; c++) {
       if (/note/i.test(String(headerRow[c]))) { notesColIdx = c; break; }
     }
   }
-  // Last resort: scan data rows for bundle/cancelled/only patterns to find the column
+  // Last resort: scan data rows for bundle/cancelled/only patterns
   if (notesColIdx === -1) {
-    for (let c = 4; c < 10; c++) { // check columns E through J
+    for (let c = 4; c < 10; c++) {
       for (let r = 1; r < Math.min(rows.length, 30); r++) {
         const val = String(rows[r]?.[c] || '').toUpperCase();
-        if (val === 'CANCELLED' || /BUNDLE/i.test(val) || /\(ONLY/i.test(val) || /\(VR/i.test(val)) {
+        if (/CANCEL/i.test(val) || /BUNDLE/i.test(val) || /\(ONLY/i.test(val)) {
           notesColIdx = c;
           break;
         }
@@ -909,10 +909,11 @@ function generate() {
     // Read notes
     const notes = notesColIdx >= 0 ? String(r[notesColIdx]||'').trim() : '';
 
-    // Check for CANCELLED in notes
-    if (notes.toUpperCase() === 'CANCELLED' || isRed) {
+    // Check for CANCELLED anywhere in notes (format: "5 · CANCELLED" or just "CANCELLED")
+    const isCancelled = /cancel/i.test(notes);
+    if (isCancelled || isRed) {
       skippedRed++;
-      skippedItems.push({ username: wu, auctionNum: an, itemName: iN, reason: notes.toUpperCase() === 'CANCELLED' ? 'Cancelled' : 'Red cell' });
+      skippedItems.push({ username: wu, auctionNum: an, itemName: iN, reason: isCancelled ? 'Cancelled' : 'Red cell' });
       sheetRows.push({ rowIdx: i, auctionNum: an, itemName: iN, username: wu, isRed: true });
       continue;
     }
